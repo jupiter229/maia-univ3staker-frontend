@@ -1,3 +1,4 @@
+import PositionManagerABI from "./PositionManager.json";
 import UniswapV3StakerABI from "./UniswapV3Staker.json";
 
-export { UniswapV3StakerABI };
+export { PositionManagerABI, UniswapV3StakerABI };
