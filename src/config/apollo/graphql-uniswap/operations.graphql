@@ -1,0 +1,69 @@
+fragment TokenFields on Token {
+  decimals
+  name
+  id
+  symbol
+  volume
+  volumeUSD
+}
+
+query GetToken($id: ID!) {
+  token(id: $id) {
+    ...TokenFields
+  }
+}
+
+query GetTokens($filter: Token_filter) {
+  tokens(where: $filter) {
+    ...TokenFields
+  }
+}
+
+fragment PoolFields on Pool {
+  id
+  token0 {
+    ...TokenFields
+  }
+  token1 {
+    ...TokenFields
+  }
+  totalValueLockedUSD
+}
+
+query GetPool($id: ID!) {
+  pool(id: $id) {
+    ...PoolFields
+  }
+}
+
+query GetPools($filter: Pool_filter) {
+  pools(where: $filter) {
+    ...PoolFields
+  }
+}
+
+fragment TransactionFields on Transaction {
+  id
+  timestamp
+  blockNumber
+}
+
+fragment PositionFields on Position {
+  id
+  liquidity
+  pool {
+    ...PoolFields
+  }
+  owner
+  depositedToken0
+  depositedToken1
+  transaction {
+    ...TransactionFields
+  }
+}
+
+query GetPositions($where: Position_filter) {
+  positions(where: $where) {
+    ...PositionFields
+  }
+}

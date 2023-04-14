@@ -1,0 +1,23 @@
+fragment IncentiveFields on Incentive {
+  id
+  pool
+  endTime
+  ended
+  minWidth
+  refundee
+  reward
+  rewardToken
+  startTime
+}
+
+query GetIncentive($id: ID!) {
+  incentive(id: $id) {
+    ...IncentiveFields
+  }
+}
+
+query GetIncentives {
+  incentives {
+    ...IncentiveFields
+  }
+}
