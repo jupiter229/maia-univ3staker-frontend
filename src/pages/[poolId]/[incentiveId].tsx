@@ -10,7 +10,7 @@ interface IProps {
 
 export const StakePage: NextPage<IProps> = ({ poolId, incentiveId }) => {
   const [userPoolPositions] = useUserPoolPositions(poolId);
-  const [onStake] = useStake(incentiveId);
+  const onStake = useStake(incentiveId);
   return (
     <>
       <h1>{incentiveId}</h1>

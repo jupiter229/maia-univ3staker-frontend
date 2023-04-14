@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"yarn gen --watch\" \"next dev\"",
+    "dev": "concurrently \"yarn graphql-gen --watch\" \"next dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen": "graphql-codegen --config codegen.ts",
-    "prestart": "yarn gen"
+    "web3-gen": "typechain --target ethers-v5 --out-dir src/types/abis src/config/abis/*.json",
+    "graphql-gen": "graphql-codegen --config codegen.ts",
+    "gen": "yarn web3-gen && yarn graphql-gen",
+    "prestart": "yarn gen",
+    "predev": "yarn web3-gen"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
@@ -39,6 +42,8 @@
     "@graphql-codegen/cli": "3.3.0",
     "@graphql-codegen/client-preset": "3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
-    "concurrently": "^8.0.1"
+    "@typechain/ethers-v5": "^10.2.0",
+    "concurrently": "^8.0.1",
+    "typechain": "^8.1.1"
   }
 }

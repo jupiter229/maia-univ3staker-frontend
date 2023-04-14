@@ -1,15 +1,11 @@
 import { DEFAULT_CHAIN_ID, apolloClient, graphqlClient } from "@/config";
 import { Address, ChainID, ChainProperty } from "@/types";
-import {
-  useAccount,
-  useContract,
-  useNetwork,
-  useProvider,
-  useSigner,
-} from "wagmi";
+import { Contract, ContractInterface } from "ethers";
+import { useMemo } from "react";
+import { goerli, useAccount, useNetwork, useProvider, useSigner } from "wagmi";
 
 export const useChain = () => {
-  const { chain } = useNetwork();
+  const { chain = goerli } = useNetwork();
   return chain;
 };
 
@@ -19,20 +15,23 @@ export const useChainID = () => {
   return chainId;
 };
 
-export const useChainProperty = <T = any>(obj: ChainProperty<T>) => {
+export const useChainProperty = <T = any>(obj?: ChainProperty<T>) => {
   const chainId = useChainID();
-  return obj[chainId] ?? obj[DEFAULT_CHAIN_ID];
+  return obj?.[chainId] ?? obj?.[DEFAULT_CHAIN_ID];
 };
 
 export const useWeb3 = () => {
   const account = useAccount();
   const network = useNetwork();
   const chain = useChain();
+  const chainId = useChainID();
 
   return {
     ...network,
     ...account,
     chain,
+    chainId,
+    account: account?.address,
   };
 };
 
@@ -44,18 +43,26 @@ export const useGraphClient = () => {
   return useChainProperty(graphqlClient);
 };
 
-export const useAddress = (address: Address) => {
-  return useChainProperty(address);
+export const useAddress = (addr?: Address | string) => {
+  const isString = typeof addr === "string";
+  const chainProperty = useChainProperty(isString ? undefined : addr);
+  return isString ? addr : chainProperty;
 };
 
-export const useChainContract = <T extends any[]>(
-  addr: Address | string,
-  abi: T
-) => {
-  const chainId = useChainID();
-  const signer = useSigner()?.data;
+export const useSignerOrProvider = () => {
+  const signer = useSigner();
   const provider = useProvider();
-  const address =
-    typeof addr === "string" ? addr : addr[chainId] ?? addr[DEFAULT_CHAIN_ID];
-  return useContract<T>({ address, abi, signerOrProvider: signer ?? provider });
+  return signer?.data ?? provider;
+};
+
+export const useContract = <T extends Contract = Contract>(
+  addr?: string | Address,
+  ABI?: ContractInterface
+) => {
+  const address = useAddress(addr);
+  const signerOrProvider = useSignerOrProvider();
+  return useMemo(() => {
+    if (!address || !ABI) return null;
+    return new Contract(address, ABI, signerOrProvider) as T;
+  }, [ABI, address, signerOrProvider]);
 };
