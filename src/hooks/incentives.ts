@@ -1,5 +1,5 @@
 import {
-  Incentive,
+  IIncentive,
   useGetIncentiveQuery,
   useGetIncentivesQuery,
   useGetPoolQuery,
@@ -24,7 +24,7 @@ export const useIncentive = (id: string) => {
   const { data: rewardTokensData, loading: tokenLoading } = useGetTokenQuery({
     variables: { id: incentive?.rewardToken },
   });
-  const result: Incentive | undefined = useMemo(() => {
+  const result: IIncentive | undefined = useMemo(() => {
     const pool = poolsData?.pool;
     const rewardToken = rewardTokensData?.token;
     if (!incentive || !pool || !rewardToken) return;
@@ -51,19 +51,22 @@ export const useIncentives = () => {
       filter: { id_in: data?.incentives.map((i) => i.rewardToken) },
     },
   });
-  const result: Incentive[] | undefined = useMemo(() => {
+  const result: IIncentive[] | undefined = useMemo(() => {
     const pools = poolsData?.pools;
     const rewardTokens = rewardTokensData?.tokens;
     if (!data || !pools || !rewardTokens) return;
-    return data.incentives.map((i) => {
-      const pool = pools.find((p) => p.id === i.pool);
-      const rewardToken = rewardTokens.find((t) => t.id === i.rewardToken);
-      return {
-        ...i,
-        pool,
-        rewardToken,
-      };
-    });
+    return data.incentives
+      .map((i) => {
+        const pool = pools.find((p) => p.id === i.pool);
+        const rewardToken = rewardTokens.find((t) => t.id === i.rewardToken);
+        if (!pool || !rewardToken) return;
+        return {
+          ...i,
+          pool,
+          rewardToken,
+        };
+      })
+      .filter(Boolean) as IIncentive[];
   }, [data, poolsData?.pools, rewardTokensData?.tokens]);
   const loading = incentivesLoading || poolsLoading || tokensLoading;
   return [result, loading] as const;
