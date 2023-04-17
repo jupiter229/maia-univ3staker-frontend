@@ -1,21 +1,28 @@
-import { PositionsTable } from "@/components";
-import { useStake, useUserPoolPositions } from "@/hooks";
+import { useIncentive, useStake, useUserPoolPositions } from "@/hooks";
 import { isAddress } from "ethers/lib/utils.js";
 import { GetServerSideProps, NextPage } from "next";
+import dynamic from "next/dynamic";
 
 interface IProps {
   poolId: string;
   incentiveId: string;
 }
 
+const PositionsTable = dynamic(() => import("@/components/PositionsTable"), {
+  ssr: false,
+});
+
 export const StakePage: NextPage<IProps> = ({ poolId, incentiveId }) => {
   const [userPoolPositions] = useUserPoolPositions(poolId);
   const onStake = useStake(incentiveId);
+  const [incentive] = useIncentive(incentiveId);
+  const hasExpired = incentive?.endTime * 1000 <= Date.now();
   return (
-    <>
-      <h1>{incentiveId}</h1>
-      <PositionsTable data={userPoolPositions} onStake={onStake} />
-    </>
+    <PositionsTable
+      data={userPoolPositions}
+      onStake={onStake}
+      hasExpired={hasExpired}
+    />
   );
 };
 

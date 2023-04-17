@@ -1,21 +1,25 @@
 import { MetaMask } from "@/config";
 import { useWeb3 } from "@/hooks";
+import { getDisplayAddress } from "@/utils";
 import { useConnect } from "wagmi";
+import { Button } from "../Button";
 
 const Header = () => {
-  const { address } = useWeb3();
+  const { account } = useWeb3();
   const { connect } = useConnect();
 
   return (
-    <header className="px-5 md:px-20 bg-white dark:bg-dark-mode-hard border-b border-transparent dark:border-dark-mode-border-soft">
-      <div className="flex items-center relative justify-between py-7 flex-wrap">
-        <div className="flex items-center gap-2 lg:gap-5">
-          {!address && (
-            <button onClick={() => connect({ connector: MetaMask })}>
-              Connect
-            </button>
-          )}
-        </div>
+    <header className="p-4">
+      <div className="flex justify-end items-center gap-2">
+        {account ? (
+          <div className="px-6 py-2 rounded-2xl bg-blue/25 text-blue">
+            {getDisplayAddress(account)}
+          </div>
+        ) : (
+          <Button onClick={() => connect({ connector: MetaMask })}>
+            Connect
+          </Button>
+        )}
       </div>
     </header>
   );

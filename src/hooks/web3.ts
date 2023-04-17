@@ -36,11 +36,11 @@ export const useWeb3 = () => {
 };
 
 export const useUniswapClient = () => {
-  return useChainProperty(apolloClient);
+  return useChainProperty(apolloClient)!;
 };
 
 export const useGraphClient = () => {
-  return useChainProperty(graphqlClient);
+  return useChainProperty(graphqlClient)!;
 };
 
 export const useAddress = (addr?: Address | string) => {
