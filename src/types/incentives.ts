@@ -14,6 +14,6 @@ export type IIncentive = Omit<
   IncentiveFieldsFragment,
   "pool" | "rewardToken"
 > & {
-  pool?: PoolFieldsFragment;
-  rewardToken?: TokenFieldsFragment;
+  pool: PoolFieldsFragment;
+  rewardToken: TokenFieldsFragment;
 };

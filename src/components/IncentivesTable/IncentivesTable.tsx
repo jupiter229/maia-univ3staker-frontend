@@ -33,25 +33,25 @@ export const IncentivesTable: React.FC<IProps> = ({ data }) => {
           {data?.map((row) => (
             <TableRow key={row.id}>
               <TableCell component="th" scope="row">
-                <Link href={`/${row.pool?.id}/${row.id}`}>
-                  {row.pool?.token0.symbol}/{row.pool?.token1?.symbol}
+                <Link href={`/${row.pool.id}/${row.id}`}>
+                  {row.pool.token0.symbol}/{row.pool.token1.symbol}
                 </Link>
               </TableCell>
               <TableCell>
                 <p>{formatDateTime(row.startTime * 1000)}</p>
                 <p>{formatDateTime(row.endTime * 1000)}</p>
               </TableCell>
-              <TableCell>{formatUSD(row.pool?.totalValueLockedUSD)}</TableCell>
-              <TableCell>{row.rewardToken?.symbol}</TableCell>
+              <TableCell>{formatUSD(row.pool.totalValueLockedUSD)}</TableCell>
+              <TableCell>{row.rewardToken.symbol}</TableCell>
               <TableCell>
                 <p>
-                  {formatBigNumber(row.reward)} {row.rewardToken?.symbol}
+                  {formatBigNumber(row.reward)} {row.rewardToken.symbol}
                 </p>
                 <p>
                   {formatUSD(
                     BigNumber.from(row.reward)
-                      .mul(row.rewardToken?.volumeUSD)
-                      .div(BigNumber.from(row.rewardToken?.volume).add(1))
+                      .mul(row.rewardToken.volumeUSD)
+                      .div(BigNumber.from(row.rewardToken.volume).add(1))
                       .toNumber()
                   )}
                 </p>
