@@ -1,6 +1,8 @@
 import {
   IncentiveFieldsFragment,
   PoolFieldsFragment,
+  PositionFieldsFragment,
+  StakerPositionFieldsFragment,
   TokenFieldsFragment,
 } from "./graphql/graphql";
 
@@ -17,3 +19,8 @@ export type IIncentive = Omit<
   pool: PoolFieldsFragment;
   rewardToken: TokenFieldsFragment;
 };
+
+export type IPosition = PositionFieldsFragment &
+  StakerPositionFieldsFragment & {
+    deposited: boolean;
+  };

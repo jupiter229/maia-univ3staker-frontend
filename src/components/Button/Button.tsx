@@ -7,7 +7,7 @@ export const Button: React.FC<ComponentProps<"button">> = ({
 }) => {
   return (
     <button
-      className={`py-2 px-4 bg-blue/25 rounded-2xl text-blue hover:text-blue/30 ${
+      className={`py-2 px-4 bg-blue/25 rounded-2xl text-blue hover:text-blue/30 disabled:opacity-40 disabled:hover:text-blue ${
         className || ""
       }`}
       {...props}

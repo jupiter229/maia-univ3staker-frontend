@@ -21,3 +21,25 @@ query GetIncentives {
     ...IncentiveFields
   }
 }
+
+query GetPositions($where: Position_filter) {
+  positions(where: $where) {
+    ...PositionFields
+  }
+}
+
+fragment StakerPositionFields on Position {
+  owner
+  staked
+  tokenId
+  oldOwner
+  id
+  liquidity
+  approved
+}
+
+query GetStakerPositions($where: Position_filter) {
+  positions(where: $where) {
+    ...StakerPositionFields
+  }
+}

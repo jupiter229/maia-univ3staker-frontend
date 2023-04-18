@@ -1,4 +1,6 @@
-import { useIncentive, useStake, useUserPoolPositions } from "@/hooks";
+import { Button } from "@/components";
+import { useIncentiveRewards, useUserPoolPositions } from "@/hooks";
+import { formatBigNumber } from "@/utils";
 import { isAddress } from "ethers/lib/utils.js";
 import { GetServerSideProps, NextPage } from "next";
 import dynamic from "next/dynamic";
@@ -14,15 +16,21 @@ const PositionsTable = dynamic(() => import("@/components/PositionsTable"), {
 
 export const StakePage: NextPage<IProps> = ({ poolId, incentiveId }) => {
   const [userPoolPositions] = useUserPoolPositions(poolId);
-  const onStake = useStake(incentiveId);
-  const [incentive] = useIncentive(incentiveId);
-  const hasExpired = incentive?.endTime * 1000 <= Date.now();
+  const { rewards, claimRewards, decimals, symbol } =
+    useIncentiveRewards(incentiveId);
   return (
-    <PositionsTable
-      data={userPoolPositions}
-      onStake={onStake}
-      hasExpired={hasExpired}
-    />
+    <>
+      <div className="flex w-full justify-between items-center">
+        <h4 className="text-white text-xl font-semibold">
+          Rewards Earned: {formatBigNumber(rewards, { decimals, precision: 6 })}{" "}
+          {symbol}
+        </h4>
+        <Button onClick={claimRewards} disabled={!rewards?.gt(0)}>
+          Claim Rewards
+        </Button>
+      </div>
+      <PositionsTable data={userPoolPositions} incentiveId={incentiveId} />
+    </>
   );
 };
 

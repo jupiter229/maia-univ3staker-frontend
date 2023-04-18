@@ -36,6 +36,10 @@ const columns = [
       formatUSD(row.pool.totalValueLockedUSD),
   },
   {
+    Header: "MinWidth",
+    accessor: "minWidth",
+  },
+  {
     Header: "Reward Token",
     accessor: "reward",
     Cell: ({ row: { original: row } }) => row.rewardToken.symbol,

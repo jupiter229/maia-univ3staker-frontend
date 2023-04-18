@@ -1,7 +1,14 @@
 // @ts-nocheck
 import { MetaMask } from "@/config";
-import { useWeb3 } from "@/hooks";
-import { PositionFieldsFragment } from "@/types";
+import {
+  useDepositStake,
+  useIncentive,
+  useStake,
+  useUnstake,
+  useWeb3,
+  useWithdraw,
+} from "@/hooks";
+import { IPosition } from "@/types";
 import { formatBigNumber, formatDateDiff } from "@/utils";
 import { useMemo } from "react";
 import { useConnect } from "wagmi";
@@ -9,9 +16,9 @@ import { Button } from "../Button";
 import { Table } from "../Table";
 
 interface IProps {
-  data?: PositionFieldsFragment[];
+  incentiveId: string;
+  data?: IPosition[];
   hasExpired?: boolean;
-  onStake?: (nftId: string | number) => Promise<any>;
 }
 
 const staticColumns = [
@@ -31,13 +38,15 @@ const staticColumns = [
   },
 ];
 
-export const PositionsTable: React.FC<IProps> = ({
-  data,
-  onStake,
-  hasExpired,
-}) => {
+export const PositionsTable: React.FC<IProps> = ({ data, incentiveId }) => {
   const { account } = useWeb3();
   const { connect } = useConnect();
+  const onDepositStake = useDepositStake(incentiveId);
+  const onUnstake = useUnstake(incentiveId);
+  const onStake = useStake(incentiveId);
+  const onWithdraw = useWithdraw(incentiveId);
+  const [incentive] = useIncentive(incentiveId);
+  const hasExpired = incentive?.endTime * 1000 <= Date.now();
   const columns = useMemo(
     () => [
       ...staticColumns,
@@ -45,13 +54,37 @@ export const PositionsTable: React.FC<IProps> = ({
         Header: "",
         accessor: "stake",
         Cell: ({ row: { original: value } }) => (
-          <div className="flex justify-center">
-            {hasExpired ? (
+          <div className="flex justify-center gap-4">
+            {value.staked ? (
+              <Button
+                className="w-full max-w-[200px]"
+                onClick={() => onUnstake(value.id)}
+              >
+                Unstake
+              </Button>
+            ) : value.deposited ? (
+              <>
+                {hasExpired || (
+                  <Button
+                    className="w-full max-w-[200px]"
+                    onClick={() => onStake(value.id)}
+                  >
+                    Stake
+                  </Button>
+                )}
+                <Button
+                  className="w-full max-w-[200px]"
+                  onClick={() => onWithdraw(value.id)}
+                >
+                  Withdraw
+                </Button>
+              </>
+            ) : hasExpired ? (
               <p>The incentive has ended</p>
             ) : (
               <Button
                 className="w-full max-w-[200px]"
-                onClick={() => onStake?.(value.id)}
+                onClick={() => onDepositStake(value.id)}
               >
                 Stake
               </Button>
@@ -60,7 +93,7 @@ export const PositionsTable: React.FC<IProps> = ({
         ),
       },
     ],
-    [hasExpired, onStake]
+    [hasExpired, onDepositStake, onStake, onUnstake, onWithdraw]
   );
   return account ? (
     <Table columns={columns} data={data || []} title="My Positions" />

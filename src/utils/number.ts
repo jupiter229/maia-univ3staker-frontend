@@ -12,8 +12,11 @@ export const formatBigNumber = (
   value: BigNumberish,
   { decimals = 18, precision = 2 } = {}
 ) => {
-  return BigNumber.from(value)
-    .div(BigNumber.from(10).pow(decimals))
-    .toNumber()
-    .toFixed(precision);
+  return (
+    BigNumber.from(value)
+      .mul(BigNumber.from(10).pow(precision))
+      .div(BigNumber.from(10).pow(decimals))
+      .toNumber() /
+    10 ** precision
+  ).toFixed(precision);
 };
