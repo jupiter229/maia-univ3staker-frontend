@@ -4,7 +4,16 @@ import {
   useGetStakerPositionsQuery,
 } from "@/types";
 import { useMemo } from "react";
+import { useIncentive } from "./incentives";
 import { useGraphClient, useWeb3 } from "./web3";
+
+export const useUserIncentivePositions = (incentiveId: string) => {
+  const [incentive, incentiveLoading] = useIncentive(incentiveId);
+  const [positions, positionsLoading] = useUserPoolPositions(
+    incentive?.pool.id
+  );
+  return [positions, incentiveLoading || positionsLoading] as const;
+};
 
 export const useUserPoolPositions = (poolId?: string) => {
   const { address } = useWeb3();

@@ -142,3 +142,22 @@ export const useIncentiveRewards = (incentiveId: string) => {
 
   return { ...incentive?.rewardToken, rewards, claimRewards };
 };
+
+export const useIsStakedInIncentive = (
+  nftId: string | number,
+  incentiveId: string
+) => {
+  const staker = useStakerContract();
+  const [isStaked, setIsStaked] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!staker) return;
+    staker.stakes(nftId.toString(), incentiveId).then((data) => {
+      setIsStaked(data.liquidity.gt(0));
+      setLoading(false);
+    });
+  }, [incentiveId, nftId, staker]);
+
+  return [isStaked, loading];
+};

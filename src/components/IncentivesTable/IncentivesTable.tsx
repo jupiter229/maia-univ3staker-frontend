@@ -14,7 +14,7 @@ const columns = [
     Header: "Pool",
     accessor: "pool",
     Cell: ({ value: pool, row: { original } }) => (
-      <Link href={`/${pool.id}/${original.id}`}>
+      <Link href={`/${original.id}`}>
         {pool.token0.symbol}/{pool.token1.symbol}
       </Link>
     ),
@@ -62,6 +62,20 @@ const columns = [
         </p>
       </>
     ),
+  },
+  {
+    Header: "Status",
+    accessor: "status",
+    Cell: ({ row: { original: row } }) => {
+      const now = Date.now();
+      if (now < row.startTime * 1000) {
+        return "Upcoming";
+      }
+      if (now > row.endTime * 1000) {
+        return "Ended";
+      }
+      return "Active";
+    },
   },
 ];
 
