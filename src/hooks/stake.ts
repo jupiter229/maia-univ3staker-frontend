@@ -97,10 +97,22 @@ export const useUnstake = (incentiveId: string) => {
       if (!incentive) throw "No incentive";
       if (!staker) throw "No staker";
       if (!account) throw "No account";
-      const tx = await staker.unstakeToken(
-        getIncentiveStruct(incentive),
-        nftId.toString()
-      );
+
+      const tx = await staker.multicall([
+        staker.interface.encodeFunctionData("unstakeToken", [
+          getIncentiveStruct(incentive),
+          nftId.toString(),
+        ]),
+        staker.interface.encodeFunctionData("claimReward", [
+          incentive.rewardToken.id,
+          account,
+          0,
+        ]),
+      ]);
+      // const tx = await staker.unstakeToken(
+      //   getIncentiveStruct(incentive),
+      //   nftId.toString()
+      // );
       return tx.wait();
     },
     [account, incentive, staker]

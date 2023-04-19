@@ -60,7 +60,7 @@ export const PositionsTable: React.FC<IProps> = ({ data, incentiveId }) => {
                 className="w-full max-w-[200px]"
                 onClick={() => onUnstake(value.id)}
               >
-                Unstake
+                Unstake & Claim
               </Button>
             ) : value.deposited ? (
               <>
