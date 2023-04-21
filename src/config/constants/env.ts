@@ -8,3 +8,6 @@ export const UNISWAP_MAINNET_SUBGRAPH_URL =
   "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli";
 export const UNISWAP_GOERLI_SUBGRAPH_URL =
   "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli";
+
+export const ALCHEMY_KEY = 
+  process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "";

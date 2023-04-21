@@ -1,11 +1,14 @@
-import { wagmiClient } from "@/config";
+import { chains, wagmiClient } from "@/config";
 import { useUniswapClient } from "@/hooks/web3";
-import "@/styles/globals.css";
 import { ApolloProvider } from "@apollo/client";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import type { AppProps } from "next/app";
 import dynamic from "next/dynamic";
 import { PropsWithChildren } from "react";
 import { WagmiConfig } from "wagmi";
+
+import "@/styles/globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
 
 const Header = dynamic(() => import("@/components/Header"), { ssr: false });
 
@@ -24,9 +27,15 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <RainbowKitProvider 
+        chains={chains}
+        coolMode
+        showRecentTransactions
+        >
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </RainbowKitProvider>
     </WagmiConfig>
   );
 }

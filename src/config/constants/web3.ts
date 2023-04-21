@@ -1,23 +1,28 @@
-import { ChainID, WAGMI_CHAINS } from "@/types";
+import { ChainID } from "@/types";
+import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient } from "wagmi";
-import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { goerli } from 'wagmi/chains';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+
 import { publicProvider } from "wagmi/providers/public";
+import { ALCHEMY_KEY } from "./env";
+export const { chains, provider } = configureChains(
+  [goerli],
+  [
+    alchemyProvider({ apiKey: ALCHEMY_KEY }),
+    publicProvider()
+  ]
+);
 
-const { provider, webSocketProvider } = configureChains(WAGMI_CHAINS, [
-  publicProvider(),
-]);
-
-export const MetaMask = new MetaMaskConnector({
-  chains: WAGMI_CHAINS,
+export const { connectors } = getDefaultWallets({
+  appName: 'Maia v3Staker',
+  chains
 });
-
-export const connectors = [MetaMask];
 
 export const wagmiClient = createClient({
   autoConnect: true,
-  provider,
-  webSocketProvider,
   connectors,
-});
+  provider
+})
 
 export const DEFAULT_CHAIN_ID = ChainID.GOERLI;
