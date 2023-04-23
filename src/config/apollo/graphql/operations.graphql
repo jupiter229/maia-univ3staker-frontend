@@ -1,4 +1,4 @@
-fragment IncentiveFields on Incentive {
+fragment BaseIncentiveFields on Incentive {
   id
   pool
   endTime
@@ -8,6 +8,33 @@ fragment IncentiveFields on Incentive {
   reward
   rewardToken
   startTime
+}
+
+fragment BasePositionFields on Position {
+  owner
+  staked
+  tokenId
+  oldOwner
+  id
+  liquidity
+  approved
+}
+
+fragment StakeFields on Stake {
+  id
+  position {
+    ...BasePositionFields
+  }
+  incentive {
+    ...BaseIncentiveFields
+  }
+}
+
+fragment IncentiveFields on Incentive {
+  ...BaseIncentiveFields
+  stakedPositions {
+    ...StakeFields
+  }
 }
 
 query GetIncentive($id: ID!) {
@@ -22,20 +49,11 @@ query GetIncentives {
   }
 }
 
-query GetPositions($where: Position_filter) {
-  positions(where: $where) {
-    ...PositionFields
-  }
-}
-
 fragment StakerPositionFields on Position {
-  owner
-  staked
-  tokenId
-  oldOwner
-  id
-  liquidity
-  approved
+  ...BasePositionFields
+  stakedIncentives {
+    ...StakeFields
+  }
 }
 
 query GetStakerPositions($where: Position_filter) {

@@ -1,6 +1,11 @@
 import { Contracts, PositionManagerABI, UniswapV3StakerABI } from "@/config";
-import { PositionManager, UniswapV3Staker } from "@/types";
-import { encodeIncentive, getIncentiveStruct } from "@/utils";
+import {
+  Arrayable,
+  Incentiveish,
+  PositionManager,
+  UniswapV3Staker,
+} from "@/types";
+import { arrayify, encodeIncentive, getIncentiveStruct } from "@/utils";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 import { useIncentive } from "./incentives";
@@ -87,35 +92,43 @@ export const useWithdraw = (incentiveId: string) => {
   return withdraw;
 };
 
-export const useUnstake = (incentiveId: string) => {
+export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
   const { account } = useWeb3();
   const staker = useStakerContract();
-  const [incentive] = useIncentive(incentiveId);
 
   const unstake = useCallback(
     async (nftId: string | number) => {
-      if (!incentive) throw "No incentive";
+      if (!incentives || (Array.isArray(incentives) && !incentives))
+        throw "No incentive";
       if (!staker) throw "No staker";
       if (!account) throw "No account";
 
-      const tx = await staker.multicall([
-        staker.interface.encodeFunctionData("unstakeToken", [
-          getIncentiveStruct(incentive),
-          nftId.toString(),
-        ]),
-        staker.interface.encodeFunctionData("claimReward", [
-          incentive.rewardToken.id,
-          account,
-          0,
-        ]),
-      ]);
+      const calls = arrayify(incentives)
+        .map((incentive) => {
+          const incentiveStruct = getIncentiveStruct(incentive);
+          const rewardToken = incentiveStruct.rewardToken;
+          return [
+            staker.interface.encodeFunctionData("unstakeToken", [
+              incentiveStruct,
+              nftId.toString(),
+            ]),
+            staker.interface.encodeFunctionData("claimReward", [
+              rewardToken,
+              account,
+              0,
+            ]),
+          ];
+        })
+        .flat();
+      const tx = await staker.multicall(calls);
+      // TODO: Remove this when multicall is finalized
       // const tx = await staker.unstakeToken(
       //   getIncentiveStruct(incentive),
       //   nftId.toString()
       // );
       return tx.wait();
     },
-    [account, incentive, staker]
+    [account, incentives, staker]
   );
 
   return unstake;

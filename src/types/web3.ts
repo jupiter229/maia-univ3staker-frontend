@@ -6,7 +6,7 @@ export enum ChainID {
   GOERLI = 5,
 }
 
-export const WAGMI_CHAINS = [mainnet, goerli];
+export const CHAINS = [mainnet, goerli];
 
 export type ChainProperty<T = any> = {
   [k in ChainID]: T;

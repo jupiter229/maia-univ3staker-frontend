@@ -1,10 +1,11 @@
-import { IIncentive } from "@/types";
+import { IIncentive, IPosition, Incentiveish } from "@/types";
 import { defaultAbiCoder } from "ethers/lib/utils.js";
 
-export const getIncentiveStruct = (incentive: IIncentive) => {
+export const getIncentiveStruct = (incentive: Incentiveish) => {
+  const { rewardToken, pool } = incentive;
   return {
-    rewardToken: incentive.rewardToken.id,
-    pool: incentive.pool.id,
+    rewardToken: typeof rewardToken === "string" ? rewardToken : rewardToken.id,
+    pool: typeof pool === "string" ? pool : pool.id,
     startTime: incentive.startTime,
     endTime: incentive.endTime,
     minWidth: incentive.minWidth,
@@ -26,8 +27,15 @@ export const encodeIncentive = (incentive: IIncentive) => {
   );
 };
 
-export const getDisplayAddress = (account?: string) => {
-  return `${account?.substring(0, 6)}...${account?.substring(
-    account?.length - 6
+export const fallbackPositionIncentiveId = (
+  position: IPosition,
+  incentiveId?: string
+) => {
+  return incentiveId === undefined ? position.incentive?.id || "" : incentiveId;
+};
+
+export const formatAddress = (address?: string) => {
+  return `${address?.substring(0, 6)}...${address?.substring(
+    address?.length - 6
   )}`;
 };

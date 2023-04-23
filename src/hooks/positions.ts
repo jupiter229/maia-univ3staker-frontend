@@ -1,21 +1,22 @@
 import {
   IPosition,
+  IStakedPosition,
   useGetPositionsQuery,
   useGetStakerPositionsQuery,
 } from "@/types";
 import { useMemo } from "react";
-import { useIncentive } from "./incentives";
+import { useIncentive, useIncentives } from "./incentives";
 import { useGraphClient, useWeb3 } from "./web3";
 
 export const useUserIncentivePositions = (incentiveId: string) => {
   const [incentive, incentiveLoading] = useIncentive(incentiveId);
-  const [positions, positionsLoading] = useUserPoolPositions(
-    incentive?.pool.id
+  const [positions, positionsLoading] = useUserPositions(
+    incentive?.pool.id || ""
   );
   return [positions, incentiveLoading || positionsLoading] as const;
 };
 
-export const useUserPoolPositions = (poolId?: string) => {
+export const useUserPositions = (poolId?: string) => {
   const { address } = useWeb3();
   const client = useGraphClient();
   const { data: stakerData, loading: stakerLoading } =
@@ -26,7 +27,15 @@ export const useUserPoolPositions = (poolId?: string) => {
   const id_in = stakerData?.positions.map((p) => p.tokenId) || [];
   const { data, loading } = useGetPositionsQuery({
     variables: {
-      where: { or: [{ pool: poolId || "", owner: address || "" }, { id_in }] },
+      where: {
+        or: [
+          {
+            ...(poolId === undefined ? undefined : { pool: poolId }),
+            owner: address || "",
+          },
+          { id_in },
+        ],
+      },
     },
   });
   const result = useMemo(() => {
@@ -44,4 +53,42 @@ export const useUserPoolPositions = (poolId?: string) => {
     return positions as IPosition[];
   }, [data, stakerData]);
   return [result, loading || stakerLoading] as const;
+};
+
+export const useUserStakedPositions = () => {
+  const [positions, positionsLoading] = useUserPositions();
+  const [incentives, incentivesLoading] = useIncentives();
+
+  // TODO: remove this when we have a way to get staked positions from the graph
+  // const staker = useStakerContract();
+  // const [result, setResult] = useState<IStakedPosition[]>();
+  // useEffect(() => {
+  //   if (!incentives || !positions || !staker) return;
+  //   const promises = positions.map(async (p) => {
+  //     const incentive = await findAsync(incentives, async (i) => {
+  //       const { liquidity } = await staker.stakes(p.id, i.id);
+  //       return liquidity.gt(0);
+  //     });
+  //     if (!incentive) return;
+  //     return { ...p, incentive };
+  //   });
+  //   Promise.all(promises).then((result) =>
+  //     setResult(result.filter(Boolean) as IStakedPosition[])
+  //   );
+  // }, [incentives, positions, staker]);
+  // return [result, incentivesLoading || positionsLoading || !result] as const;
+
+  const result = useMemo(() => {
+    if (!positions) return;
+    const result = positions
+      .map((p) => {
+        const id = p.stakedIncentives?.[0]?.incentive?.id;
+        const incentive = incentives?.find((i) => i.id === id);
+        if (!incentive) return;
+        return { ...p, incentive };
+      })
+      .filter(Boolean) as IStakedPosition[];
+    return result;
+  }, [incentives, positions]);
+  return [result, positionsLoading || incentivesLoading] as const;
 };

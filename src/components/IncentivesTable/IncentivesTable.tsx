@@ -80,7 +80,12 @@ const columns = [
 ];
 
 export const IncentivesTable: React.FC<IProps> = ({ data }) => {
-  return <Table columns={columns} data={data || []} title="Incentives" />;
+  return (
+    <div className="flex flex-col gap-4 justify-center items-center text-white w-full">
+      <h5 className="text-lg font-semibold px-6 w-full">Incentives</h5>
+      <Table columns={columns} data={data || []} />
+    </div>
+  );
 };
 
 export default IncentivesTable;

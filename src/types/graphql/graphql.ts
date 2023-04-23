@@ -880,7 +880,17 @@ export type Incentive = {
   refundee: Scalars['Bytes'];
   reward: Scalars['BigInt'];
   rewardToken: Scalars['Bytes'];
+  stakedPositions: Array<Stake>;
   startTime: Scalars['BigInt'];
+};
+
+
+export type IncentiveStakedPositionsArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Stake_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<Stake_Filter>;
 };
 
 export type Incentive_Filter = {
@@ -954,6 +964,7 @@ export type Incentive_Filter = {
   reward_lte?: InputMaybe<Scalars['BigInt']>;
   reward_not?: InputMaybe<Scalars['BigInt']>;
   reward_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakedPositions_?: InputMaybe<Stake_Filter>;
   startTime?: InputMaybe<Scalars['BigInt']>;
   startTime_gt?: InputMaybe<Scalars['BigInt']>;
   startTime_gte?: InputMaybe<Scalars['BigInt']>;
@@ -973,6 +984,7 @@ export enum Incentive_OrderBy {
   Refundee = 'refundee',
   Reward = 'reward',
   RewardToken = 'rewardToken',
+  StakedPositions = 'stakedPositions',
   StartTime = 'startTime'
 }
 
@@ -2243,6 +2255,7 @@ export type Position = {
   owner: Scalars['Bytes'];
   pool: Pool;
   staked: Scalars['Boolean'];
+  stakedIncentives: Array<Stake>;
   tickLower: Tick;
   tickUpper: Tick;
   token0: Token;
@@ -2251,6 +2264,15 @@ export type Position = {
   transaction: Transaction;
   withdrawnToken0: Scalars['BigDecimal'];
   withdrawnToken1: Scalars['BigDecimal'];
+};
+
+
+export type PositionStakedIncentivesArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Stake_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<Stake_Filter>;
 };
 
 export type PositionSnapshot = {
@@ -2632,6 +2654,7 @@ export type Position_Filter = {
   pool_starts_with?: InputMaybe<Scalars['String']>;
   pool_starts_with_nocase?: InputMaybe<Scalars['String']>;
   staked?: InputMaybe<Scalars['Boolean']>;
+  stakedIncentives_?: InputMaybe<Stake_Filter>;
   staked_in?: InputMaybe<Array<Scalars['Boolean']>>;
   staked_not?: InputMaybe<Scalars['Boolean']>;
   staked_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -2807,6 +2830,7 @@ export enum Position_OrderBy {
   PoolVolumeToken1 = 'pool__volumeToken1',
   PoolVolumeUsd = 'pool__volumeUSD',
   Staked = 'staked',
+  StakedIncentives = 'stakedIncentives',
   TickLower = 'tickLower',
   TickLowerCollectedFeesToken0 = 'tickLower__collectedFeesToken0',
   TickLowerCollectedFeesToken1 = 'tickLower__collectedFeesToken1',
@@ -2920,6 +2944,8 @@ export type Query = {
   positionSnapshot?: Maybe<PositionSnapshot>;
   positionSnapshots: Array<PositionSnapshot>;
   positions: Array<Position>;
+  stake?: Maybe<Stake>;
+  stakes: Array<Stake>;
   swap?: Maybe<Swap>;
   swaps: Array<Swap>;
   tick?: Maybe<Tick>;
@@ -3162,6 +3188,24 @@ export type QueryPositionsArgs = {
 };
 
 
+export type QueryStakeArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryStakesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Stake_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Stake_Filter>;
+};
+
+
 export type QuerySwapArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
@@ -3323,6 +3367,92 @@ export type QueryUniswapDayDatasArgs = {
   where?: InputMaybe<UniswapDayData_Filter>;
 };
 
+export type Stake = {
+  __typename?: 'Stake';
+  id: Scalars['ID'];
+  incentive?: Maybe<Incentive>;
+  position?: Maybe<Position>;
+};
+
+export type Stake_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Stake_Filter>>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  incentive?: InputMaybe<Scalars['String']>;
+  incentive_?: InputMaybe<Incentive_Filter>;
+  incentive_contains?: InputMaybe<Scalars['String']>;
+  incentive_contains_nocase?: InputMaybe<Scalars['String']>;
+  incentive_ends_with?: InputMaybe<Scalars['String']>;
+  incentive_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  incentive_gt?: InputMaybe<Scalars['String']>;
+  incentive_gte?: InputMaybe<Scalars['String']>;
+  incentive_in?: InputMaybe<Array<Scalars['String']>>;
+  incentive_lt?: InputMaybe<Scalars['String']>;
+  incentive_lte?: InputMaybe<Scalars['String']>;
+  incentive_not?: InputMaybe<Scalars['String']>;
+  incentive_not_contains?: InputMaybe<Scalars['String']>;
+  incentive_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  incentive_not_ends_with?: InputMaybe<Scalars['String']>;
+  incentive_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  incentive_not_in?: InputMaybe<Array<Scalars['String']>>;
+  incentive_not_starts_with?: InputMaybe<Scalars['String']>;
+  incentive_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  incentive_starts_with?: InputMaybe<Scalars['String']>;
+  incentive_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  or?: InputMaybe<Array<InputMaybe<Stake_Filter>>>;
+  position?: InputMaybe<Scalars['String']>;
+  position_?: InputMaybe<Position_Filter>;
+  position_contains?: InputMaybe<Scalars['String']>;
+  position_contains_nocase?: InputMaybe<Scalars['String']>;
+  position_ends_with?: InputMaybe<Scalars['String']>;
+  position_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  position_gt?: InputMaybe<Scalars['String']>;
+  position_gte?: InputMaybe<Scalars['String']>;
+  position_in?: InputMaybe<Array<Scalars['String']>>;
+  position_lt?: InputMaybe<Scalars['String']>;
+  position_lte?: InputMaybe<Scalars['String']>;
+  position_not?: InputMaybe<Scalars['String']>;
+  position_not_contains?: InputMaybe<Scalars['String']>;
+  position_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  position_not_ends_with?: InputMaybe<Scalars['String']>;
+  position_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  position_not_in?: InputMaybe<Array<Scalars['String']>>;
+  position_not_starts_with?: InputMaybe<Scalars['String']>;
+  position_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  position_starts_with?: InputMaybe<Scalars['String']>;
+  position_starts_with_nocase?: InputMaybe<Scalars['String']>;
+};
+
+export enum Stake_OrderBy {
+  Id = 'id',
+  Incentive = 'incentive',
+  IncentiveEndTime = 'incentive__endTime',
+  IncentiveEnded = 'incentive__ended',
+  IncentiveId = 'incentive__id',
+  IncentiveMinWidth = 'incentive__minWidth',
+  IncentivePool = 'incentive__pool',
+  IncentiveRefundee = 'incentive__refundee',
+  IncentiveReward = 'incentive__reward',
+  IncentiveRewardToken = 'incentive__rewardToken',
+  IncentiveStartTime = 'incentive__startTime',
+  Position = 'position',
+  PositionApproved = 'position__approved',
+  PositionId = 'position__id',
+  PositionLiquidity = 'position__liquidity',
+  PositionOldOwner = 'position__oldOwner',
+  PositionOwner = 'position__owner',
+  PositionStaked = 'position__staked',
+  PositionTokenId = 'position__tokenId'
+}
+
 export type Subscription = {
   __typename?: 'Subscription';
   /** Access to subgraph metadata */
@@ -3351,6 +3481,8 @@ export type Subscription = {
   positionSnapshot?: Maybe<PositionSnapshot>;
   positionSnapshots: Array<PositionSnapshot>;
   positions: Array<Position>;
+  stake?: Maybe<Stake>;
+  stakes: Array<Stake>;
   swap?: Maybe<Swap>;
   swaps: Array<Swap>;
   tick?: Maybe<Tick>;
@@ -3590,6 +3722,24 @@ export type SubscriptionPositionsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<Position_Filter>;
+};
+
+
+export type SubscriptionStakeArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionStakesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Stake_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Stake_Filter>;
 };
 
 
@@ -5585,43 +5735,52 @@ export type GetPositionsQueryVariables = Exact<{
 
 export type GetPositionsQuery = { __typename?: 'Query', positions: Array<{ __typename?: 'Position', id: string, liquidity: any, owner: any, depositedToken0: any, depositedToken1: any, pool: { __typename?: 'Pool', id: string, totalValueLockedUSD: any, token0: { __typename?: 'Token', decimals: any, name: string, id: string, symbol: string, volume: any, volumeUSD: any }, token1: { __typename?: 'Token', decimals: any, name: string, id: string, symbol: string, volume: any, volumeUSD: any } }, transaction: { __typename?: 'Transaction', id: string, timestamp: any, blockNumber: any } }> };
 
-export type IncentiveFieldsFragment = { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any };
+export type BaseIncentiveFieldsFragment = { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any };
+
+export type BasePositionFieldsFragment = { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null };
+
+export type StakeFieldsFragment = { __typename?: 'Stake', id: string, position?: { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null } | null, incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null };
+
+export type IncentiveFieldsFragment = { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any, stakedPositions: Array<{ __typename?: 'Stake', id: string, position?: { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null } | null, incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null }> };
 
 export type GetIncentiveQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetIncentiveQuery = { __typename?: 'Query', incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null };
+export type GetIncentiveQuery = { __typename?: 'Query', incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any, stakedPositions: Array<{ __typename?: 'Stake', id: string, position?: { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null } | null, incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null }> } | null };
 
 export type GetIncentivesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetIncentivesQuery = { __typename?: 'Query', incentives: Array<{ __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any }> };
+export type GetIncentivesQuery = { __typename?: 'Query', incentives: Array<{ __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any, stakedPositions: Array<{ __typename?: 'Stake', id: string, position?: { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null } | null, incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null }> }> };
 
-export type StakerPositionFieldsFragment = { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null };
+export type StakerPositionFieldsFragment = { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null, stakedIncentives: Array<{ __typename?: 'Stake', id: string, position?: { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null } | null, incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null }> };
 
 export type GetStakerPositionsQueryVariables = Exact<{
   where?: InputMaybe<Position_Filter>;
 }>;
 
 
-export type GetStakerPositionsQuery = { __typename?: 'Query', positions: Array<{ __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null }> };
+export type GetStakerPositionsQuery = { __typename?: 'Query', positions: Array<{ __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null, stakedIncentives: Array<{ __typename?: 'Stake', id: string, position?: { __typename?: 'Position', owner: any, staked: boolean, tokenId: any, oldOwner?: any | null, id: string, liquidity: any, approved?: any | null } | null, incentive?: { __typename?: 'Incentive', id: string, pool: any, endTime: any, ended: boolean, minWidth: number, refundee: any, reward: any, rewardToken: any, startTime: any } | null }> }> };
 
 export const TokenFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}}]} as unknown as DocumentNode<TokenFieldsFragment, unknown>;
 export const PoolFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PoolFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Pool"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"token0"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"token1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalValueLockedUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}}]} as unknown as DocumentNode<PoolFieldsFragment, unknown>;
 export const TransactionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TransactionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Transaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"blockNumber"}}]}}]} as unknown as DocumentNode<TransactionFieldsFragment, unknown>;
 export const PositionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"pool"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PoolFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"depositedToken0"}},{"kind":"Field","name":{"kind":"Name","value":"depositedToken1"}},{"kind":"Field","name":{"kind":"Name","value":"transaction"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TransactionFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PoolFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Pool"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"token0"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"token1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalValueLockedUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TransactionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Transaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"blockNumber"}}]}}]} as unknown as DocumentNode<PositionFieldsFragment, unknown>;
-export const IncentiveFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]} as unknown as DocumentNode<IncentiveFieldsFragment, unknown>;
-export const StakerPositionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakerPositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}}]} as unknown as DocumentNode<StakerPositionFieldsFragment, unknown>;
+export const BaseIncentiveFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]} as unknown as DocumentNode<BaseIncentiveFieldsFragment, unknown>;
+export const BasePositionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}}]} as unknown as DocumentNode<BasePositionFieldsFragment, unknown>;
+export const StakeFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakeFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Stake"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"incentive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]} as unknown as DocumentNode<StakeFieldsFragment, unknown>;
+export const IncentiveFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}},{"kind":"Field","name":{"kind":"Name","value":"stakedPositions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakeFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakeFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Stake"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"incentive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}}]}}]}}]} as unknown as DocumentNode<IncentiveFieldsFragment, unknown>;
+export const StakerPositionFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakerPositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}},{"kind":"Field","name":{"kind":"Name","value":"stakedIncentives"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakeFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakeFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Stake"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"incentive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}}]}}]}}]} as unknown as DocumentNode<StakerPositionFieldsFragment, unknown>;
 export const GetTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetToken"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"token"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}}]} as unknown as DocumentNode<GetTokenQuery, GetTokenQueryVariables>;
 export const GetTokensDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTokens"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Token_filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tokens"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}}]} as unknown as DocumentNode<GetTokensQuery, GetTokensQueryVariables>;
 export const GetPoolDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPool"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pool"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PoolFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PoolFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Pool"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"token0"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"token1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalValueLockedUSD"}}]}}]} as unknown as DocumentNode<GetPoolQuery, GetPoolQueryVariables>;
 export const GetPoolsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPools"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Pool_filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pools"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PoolFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PoolFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Pool"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"token0"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"token1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalValueLockedUSD"}}]}}]} as unknown as DocumentNode<GetPoolsQuery, GetPoolsQueryVariables>;
 export const GetPositionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPositions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Position_filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PositionFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TokenFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Token"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"volumeUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PoolFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Pool"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"token0"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"token1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TokenFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalValueLockedUSD"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"TransactionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Transaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"blockNumber"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"pool"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PoolFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"depositedToken0"}},{"kind":"Field","name":{"kind":"Name","value":"depositedToken1"}},{"kind":"Field","name":{"kind":"Name","value":"transaction"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TransactionFields"}}]}}]}}]} as unknown as DocumentNode<GetPositionsQuery, GetPositionsQueryVariables>;
-export const GetIncentiveDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetIncentive"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"incentive"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]} as unknown as DocumentNode<GetIncentiveQuery, GetIncentiveQueryVariables>;
-export const GetIncentivesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetIncentives"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"incentives"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]} as unknown as DocumentNode<GetIncentivesQuery, GetIncentivesQueryVariables>;
-export const GetStakerPositionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetStakerPositions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Position_filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakerPositionFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakerPositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}}]} as unknown as DocumentNode<GetStakerPositionsQuery, GetStakerPositionsQueryVariables>;
+export const GetIncentiveDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetIncentive"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"incentive"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakeFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Stake"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"incentive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}},{"kind":"Field","name":{"kind":"Name","value":"stakedPositions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakeFields"}}]}}]}}]} as unknown as DocumentNode<GetIncentiveQuery, GetIncentiveQueryVariables>;
+export const GetIncentivesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetIncentives"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"incentives"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"IncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakeFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Stake"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"incentive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"IncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}},{"kind":"Field","name":{"kind":"Name","value":"stakedPositions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakeFields"}}]}}]}}]} as unknown as DocumentNode<GetIncentivesQuery, GetIncentivesQueryVariables>;
+export const GetStakerPositionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetStakerPositions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Position_filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakerPositionFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BasePositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"staked"}},{"kind":"Field","name":{"kind":"Name","value":"tokenId"}},{"kind":"Field","name":{"kind":"Name","value":"oldOwner"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"liquidity"}},{"kind":"Field","name":{"kind":"Name","value":"approved"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"BaseIncentiveFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Incentive"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pool"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"ended"}},{"kind":"Field","name":{"kind":"Name","value":"minWidth"}},{"kind":"Field","name":{"kind":"Name","value":"refundee"}},{"kind":"Field","name":{"kind":"Name","value":"reward"}},{"kind":"Field","name":{"kind":"Name","value":"rewardToken"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakeFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Stake"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"position"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"incentive"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BaseIncentiveFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"StakerPositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Position"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"BasePositionFields"}},{"kind":"Field","name":{"kind":"Name","value":"stakedIncentives"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"StakeFields"}}]}}]}}]} as unknown as DocumentNode<GetStakerPositionsQuery, GetStakerPositionsQueryVariables>;
 export const GqlTokenFields = gql`
     fragment TokenFields on Token {
   decimals
@@ -5667,8 +5826,8 @@ export const GqlPositionFields = gql`
 }
     ${GqlPoolFields}
 ${GqlTransactionFields}`;
-export const GqlIncentiveFields = gql`
-    fragment IncentiveFields on Incentive {
+export const GqlBaseIncentiveFields = gql`
+    fragment BaseIncentiveFields on Incentive {
   id
   pool
   endTime
@@ -5680,8 +5839,8 @@ export const GqlIncentiveFields = gql`
   startTime
 }
     `;
-export const GqlStakerPositionFields = gql`
-    fragment StakerPositionFields on Position {
+export const GqlBasePositionFields = gql`
+    fragment BasePositionFields on Position {
   owner
   staked
   tokenId
@@ -5691,6 +5850,36 @@ export const GqlStakerPositionFields = gql`
   approved
 }
     `;
+export const GqlStakeFields = gql`
+    fragment StakeFields on Stake {
+  id
+  position {
+    ...BasePositionFields
+  }
+  incentive {
+    ...BaseIncentiveFields
+  }
+}
+    ${GqlBasePositionFields}
+${GqlBaseIncentiveFields}`;
+export const GqlIncentiveFields = gql`
+    fragment IncentiveFields on Incentive {
+  ...BaseIncentiveFields
+  stakedPositions {
+    ...StakeFields
+  }
+}
+    ${GqlBaseIncentiveFields}
+${GqlStakeFields}`;
+export const GqlStakerPositionFields = gql`
+    fragment StakerPositionFields on Position {
+  ...BasePositionFields
+  stakedIncentives {
+    ...StakeFields
+  }
+}
+    ${GqlBasePositionFields}
+${GqlStakeFields}`;
 export const GqlGetToken = gql`
     query GetToken($id: ID!) {
   token(id: $id) {

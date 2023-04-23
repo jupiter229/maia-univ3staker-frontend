@@ -1,11 +1,16 @@
-import { DEFAULT_CHAIN_ID, apolloClient, graphqlClient } from "@/config";
+import {
+  DEFAULT_CHAIN,
+  DEFAULT_CHAIN_ID,
+  apolloClient,
+  graphqlClient,
+} from "@/config";
 import { Address, ChainID, ChainProperty } from "@/types";
 import { Contract, ContractInterface } from "ethers";
 import { useMemo } from "react";
-import { goerli, useAccount, useNetwork, useProvider, useSigner } from "wagmi";
+import { useAccount, useNetwork, useProvider, useSigner } from "wagmi";
 
 export const useChain = () => {
-  const { chain = goerli } = useNetwork();
+  const { chain = DEFAULT_CHAIN } = useNetwork();
   return chain;
 };
 

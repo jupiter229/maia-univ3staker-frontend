@@ -1,18 +1,17 @@
 // @ts-nocheck
-import { MetaMask } from "@/config";
 import { useWeb3 } from "@/hooks";
 import { IPosition } from "@/types";
 import { formatBigNumber, formatDateDiff } from "@/utils";
 import { useMemo } from "react";
-import { useConnect } from "wagmi";
-import { Button } from "../Button";
+import { ConnectWallet } from "../ConnectWallet";
 import { Table } from "../Table";
 import { ActionButtons } from "./ActionButtons";
 
 interface IProps {
-  incentiveId: string;
+  incentiveId?: string;
   data?: IPosition[];
   hasExpired?: boolean;
+  title?: string;
 }
 
 const staticColumns = [
@@ -32,9 +31,12 @@ const staticColumns = [
   },
 ];
 
-export const PositionsTable: React.FC<IProps> = ({ data, incentiveId }) => {
+export const PositionsTable: React.FC<IProps> = ({
+  data,
+  incentiveId,
+  title = "My Positions",
+}) => {
   const { account } = useWeb3();
-  const { connect } = useConnect();
   const columns = useMemo(
     () => [
       ...staticColumns,
@@ -48,14 +50,17 @@ export const PositionsTable: React.FC<IProps> = ({ data, incentiveId }) => {
     ],
     [incentiveId]
   );
-  return account ? (
-    <Table columns={columns} data={data || []} title="My Positions" />
-  ) : (
-    <div className="flex flex-col gap-4 justify-center items-center">
-      <h5 className="text-white text-lg font-semibold px-6">My Positions</h5>
-      <Button onClick={() => connect({ connector: MetaMask })}>
-        Connect Wallet
-      </Button>
+  return (
+    <div className="flex flex-col gap-4 justify-center items-center text-white w-full">
+      {title && <h5 className="text-lg font-semibold px-6 w-full">{title}</h5>}
+      {account ? (
+        <Table columns={columns} data={data || []} />
+      ) : (
+        <>
+          <p>Connect your wallet to view your positions</p>
+          <ConnectWallet />
+        </>
+      )}
     </div>
   );
 };

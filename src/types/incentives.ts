@@ -23,4 +23,13 @@ export type IIncentive = Omit<
 export type IPosition = PositionFieldsFragment &
   StakerPositionFieldsFragment & {
     deposited: boolean;
+    incentive?: IIncentive;
   };
+
+export type IStakedPosition = IPosition & {
+  incentive: IIncentive;
+};
+
+export type Arrayable<T = any> = T[] | T;
+
+export type Incentiveish = IIncentive | IncentiveFieldsFragment;
