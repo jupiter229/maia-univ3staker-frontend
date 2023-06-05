@@ -55,14 +55,11 @@ const columns = [
     ),
   },
   {
-    Header: "Fee APR",
-    accessor: "feeAPR",
+    Header: "24H Fee",
+    accessor: "24Fee",
     Cell: ({ row: { original: row } }) => (
       <>
-        <p>
-          {(row.rewardToken.volumeUSD * ((row.feeTier * 0.9) / 1e7)).toFixed(2)}
-          %
-        </p>
+        <p>{formatUSD(row.poolDayData.feesUSD * 0.9)}</p>
       </>
     ),
   },

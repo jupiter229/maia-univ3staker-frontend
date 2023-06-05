@@ -5,6 +5,7 @@ fragment TokenFields on Token {
   symbol
   volume
   volumeUSD
+  derivedETH
 }
 
 query GetToken($id: ID!) {
@@ -66,5 +67,25 @@ fragment PositionFields on Position {
 query GetPositions($where: Position_filter) {
   positions(where: $where) {
     ...PositionFields
+  }
+}
+
+query GetPoolDayData($filter: PoolDayData_filter) {
+  poolDayDatas(where: $filter) {
+    ...PoolDayDataFields
+  }
+}
+
+fragment PoolDayDataFields on PoolDayData {
+  pool{
+    id
+  }
+  date
+  feesUSD
+}
+
+query GetEthPrice() {
+  bundles(where: { id: "1" }) {
+    ethPriceUSD
   }
 }
