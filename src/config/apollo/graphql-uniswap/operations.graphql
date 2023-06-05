@@ -28,6 +28,7 @@ fragment PoolFields on Pool {
     ...TokenFields
   }
   totalValueLockedUSD
+  feeTier
 }
 
 query GetPool($id: ID!) {

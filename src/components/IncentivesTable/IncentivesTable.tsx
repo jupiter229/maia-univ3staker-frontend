@@ -34,15 +34,15 @@ const columns = [
     Cell: ({ row: { original: row } }) =>
       formatUSD(row.pool.totalValueLockedUSD),
   },
-  {
-    Header: "MinWidth",
-    accessor: "minWidth",
-  },
-  {
-    Header: "Reward Token",
-    accessor: "reward",
-    Cell: ({ row: { original: row } }) => row.rewardToken.symbol,
-  },
+  // {
+  //   Header: "MinWidth",
+  //   accessor: "minWidth",
+  // },
+  // {
+  //   Header: "Reward Token",
+  //   accessor: "reward",
+  //   Cell: ({ row: { original: row } }) => row.rewardToken.symbol,
+  // },
   {
     Header: "Total Reward",
     accessor: "totalReward",
@@ -51,7 +51,18 @@ const columns = [
         <p>
           {formatBigNumber(row.reward)} {row.rewardToken.symbol}
         </p>
-        <p>{formatUSD(row.rewardToken.volumeUSD)}</p>
+      </>
+    ),
+  },
+  {
+    Header: "Fee APR",
+    accessor: "feeAPR",
+    Cell: ({ row: { original: row } }) => (
+      <>
+        <p>
+          {(row.rewardToken.volumeUSD * ((row.feeTier * 0.9) / 1e7)).toFixed(2)}
+          %
+        </p>
       </>
     ),
   },

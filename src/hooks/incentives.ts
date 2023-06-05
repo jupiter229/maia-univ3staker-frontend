@@ -47,6 +47,9 @@ export const useIncentives = () => {
   const { data: poolsData, loading: poolsLoading } = useGetPoolsQuery({
     variables: { filter: { id_in: data?.incentives.map((i) => i.pool) } },
   });
+
+  console.log("poolData", poolsData);
+
   const { data: rewardTokensData, loading: tokensLoading } = useGetTokensQuery({
     variables: {
       filter: { id_in: data?.incentives.map((i) => i.rewardToken) },
@@ -60,11 +63,13 @@ export const useIncentives = () => {
       .map((i) => {
         const pool = pools.find((p) => p.id === i.pool);
         const rewardToken = rewardTokens.find((t) => t.id === i.rewardToken);
-        if (!pool || !rewardToken) return;
+        const feeTier = pool?.feeTier;
+        if (!pool || !rewardToken || !feeTier) return;
         return {
           ...i,
           pool,
           rewardToken,
+          feeTier,
         };
       })
       .filter(Boolean) as IIncentive[];
