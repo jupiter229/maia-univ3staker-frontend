@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { IIncentive } from "@/types";
 import { formatBigNumber, formatDateTime, formatUSD } from "@/utils";
-import { BigNumber } from "ethers";
 import Link from "next/link";
 import { Table } from "../Table";
 
@@ -52,14 +51,7 @@ const columns = [
         <p>
           {formatBigNumber(row.reward)} {row.rewardToken.symbol}
         </p>
-        <p>
-          {formatUSD(
-            BigNumber.from(row.reward)
-              .mul(row.rewardToken.volumeUSD)
-              .div(BigNumber.from(row.rewardToken.volume).add(1))
-              .toNumber()
-          )}
-        </p>
+        <p>{formatUSD(row.rewardToken.volumeUSD)}</p>
       </>
     ),
   },
