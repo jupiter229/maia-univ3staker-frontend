@@ -43,6 +43,7 @@ export const useIncentives = () => {
   const { data, loading: incentivesLoading } = useGetIncentivesQuery({
     client,
   });
+
   const { data: poolsData, loading: poolsLoading } = useGetPoolsQuery({
     variables: { filter: { id_in: data?.incentives.map((i) => i.pool) } },
   });

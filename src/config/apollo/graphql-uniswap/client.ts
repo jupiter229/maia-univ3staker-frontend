@@ -3,10 +3,10 @@ import { ChainID, GraphQLClient } from "@/types";
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 
 export const uniswapClient: GraphQLClient = {
-  [ChainID.MAINNET]: new ApolloClient({
+  [ChainID.METIS]: new ApolloClient({
     cache: new InMemoryCache(),
     link: new HttpLink({
-      uri: UNISWAP_SUBGRAPH_URL[ChainID.MAINNET],
+      uri: UNISWAP_SUBGRAPH_URL[ChainID.METIS],
     }),
   }),
   [ChainID.GOERLI]: new ApolloClient({

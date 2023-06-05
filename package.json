@@ -19,6 +19,7 @@
     "@types/node": "18.15.11",
     "@types/react": "18.0.34",
     "@types/react-dom": "18.0.11",
+    "@wagmi/chains": "^1.1.0",
     "autoprefixer": "10.4.14",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
@@ -35,7 +36,7 @@
     "wagmi": "^0.12.12"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "3.3.0",
+    "@graphql-codegen/cli": "^3.3.0",
     "@graphql-codegen/client-preset": "3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@typechain/ethers-v5": "^10.2.0",
