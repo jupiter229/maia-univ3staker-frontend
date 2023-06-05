@@ -34,10 +34,10 @@ const columns = [
     Cell: ({ row: { original: row } }) =>
       formatUSD(row.pool.totalValueLockedUSD),
   },
-  // {
-  //   Header: "MinWidth",
-  //   accessor: "minWidth",
-  // },
+  {
+    Header: "MinWidth",
+    accessor: "minWidth",
+  },
   // {
   //   Header: "Reward Token",
   //   accessor: "reward",
@@ -50,6 +50,9 @@ const columns = [
       <>
         <p>
           {formatBigNumber(row.reward)} {row.rewardToken.symbol}
+        </p>
+        <p>
+          {(formatBigNumber(row.reward) * row.tokenPriceUSD).toFixed(2)}% APR
         </p>
       </>
     ),

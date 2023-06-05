@@ -30,6 +30,7 @@ fragment PoolFields on Pool {
   }
   totalValueLockedUSD
   feeTier
+  liquidity
 }
 
 query GetPool($id: ID!) {
@@ -77,15 +78,15 @@ query GetPoolDayData($filter: PoolDayData_filter) {
 }
 
 fragment PoolDayDataFields on PoolDayData {
-  pool{
+  pool {
     id
   }
   date
   feesUSD
 }
 
-query GetEthPrice() {
-  bundles(where: { id: "1" }) {
+query GetEthPrice($filter: Bundle_filter) {
+  bundles(where: $filter) {
     ethPriceUSD
   }
 }

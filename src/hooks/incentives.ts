@@ -44,9 +44,7 @@ export const useIncentive = (id: string) => {
 export const useIncentives = () => {
   const client = useGraphClient();
 
-  const ethPrice = useGetEthPriceQuery();
-
-  console.log("ethPrice", ethPrice);
+  const { data: ethPrice, loading: ethPriceLoading } = useGetEthPriceQuery({variables: {filter: {id_in: ["1"]}}});
 
   const { data, loading: incentivesLoading } = useGetIncentivesQuery({
     client,
@@ -55,8 +53,6 @@ export const useIncentives = () => {
   const { data: poolsData, loading: poolsLoading } = useGetPoolsQuery({
     variables: { filter: { id_in: data?.incentives.map((i) => i.pool) } },
   });
-
-  console.log("poolData", poolsData);
 
   const day = (new Date().getTime() / 86400000 - 1).toFixed(0);
 
@@ -67,8 +63,6 @@ export const useIncentives = () => {
       },
     });
 
-  console.log("poolsDayData", poolsDayData);
-
   const { data: rewardTokensData, loading: tokensLoading } = useGetTokensQuery({
     variables: {
       filter: { id_in: data?.incentives.map((i) => i.rewardToken) },
@@ -78,30 +72,28 @@ export const useIncentives = () => {
     const pools = poolsData?.pools;
     const rewardTokens = rewardTokensData?.tokens;
     const poolsDayDatas = poolsDayData?.poolDayDatas;
-    if (!data || !pools || !rewardTokens || !poolsDayDatas) return;
+    if (!data || !pools || !rewardTokens || !poolsDayDatas || !ethPrice) return;
     return data.incentives
       .map((i) => {
         const pool = pools.find((p) => p.id === i.pool);
         const poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
         const rewardToken = rewardTokens.find((t) => t.id === i.rewardToken);
-        const tokenPriceUSD = rewardToken?.derivedETH * ethPrice.data?.ethPrice;
+        const tokenPriceUSD = rewardToken?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
+        const activeLiqudity = pool?.liquidity;
         const feeTier = pool?.feeTier;
-        if (!pool || !rewardToken || !poolDayData || !feeTier) return;
+        if (!pool || !rewardToken || !poolDayData || !feeTier || !tokenPriceUSD || !activeLiqudity) return;
         return {
           ...i,
           pool,
           rewardToken,
           poolDayData,
+          tokenPriceUSD,
+          activeLiqudity,
           feeTier,
         };
       })
       .filter(Boolean) as IIncentive[];
-  }, [
-    data,
-    poolsData?.pools,
-    rewardTokensData?.tokens,
-    poolsDayData?.poolDayDatas,
-  ]);
-  const loading = incentivesLoading || poolsLoading || tokensLoading;
+  }, [poolsData?.pools, rewardTokensData?.tokens, poolsDayData?.poolDayDatas, data, ethPrice]);
+  const loading = incentivesLoading || poolsLoading || tokensLoading || ethPriceLoading || poolsDayLoading;
   return [result, loading] as const;
 };
