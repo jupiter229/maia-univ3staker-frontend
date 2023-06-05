@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { IIncentive } from "@/types";
 import { formatBigNumber, formatDateTime, formatUSD } from "@/utils";
+import { getActiveLiquidityUSD } from "@/utils/tvl";
 import Link from "next/link";
 import { Table } from "../Table";
 
@@ -52,7 +53,19 @@ const columns = [
           {formatBigNumber(row.reward)} {row.rewardToken.symbol}
         </p>
         <p>
-          {(formatBigNumber(row.reward) * row.tokenPriceUSD).toFixed(2)}% APR
+          {(
+            ((formatBigNumber(row.reward) * row.tokenPriceUSD) /
+              getActiveLiquidityUSD(
+                row.pool.id,
+                row.sqrtPrice,
+                row.activeLiquidity,
+                row.totalLiquidity,
+                row.pool.poolToken0PriceUSD,
+                row.pool.poolToken1PriceUSD
+              )) *
+            100
+          ).toFixed(2)}
+          % APR
         </p>
       </>
     ),

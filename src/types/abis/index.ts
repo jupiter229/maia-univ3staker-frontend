@@ -2,7 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { PositionManager } from "./PositionManager";
+export type { UniswapV3Position } from "./UniswapV3Position";
 export type { UniswapV3Staker } from "./UniswapV3Staker";
 export * as factories from "./factories";
 export { PositionManager__factory } from "./factories/PositionManager__factory";
+export { UniswapV3Position__factory } from "./factories/UniswapV3Position__factory";
 export { UniswapV3Staker__factory } from "./factories/UniswapV3Staker__factory";
