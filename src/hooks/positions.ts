@@ -40,18 +40,22 @@ export const useUserPositions = (poolId?: string) => {
   });
   const result = useMemo(() => {
     if (!data || !stakerData) return;
-    const positions = data.positions.map((p) => {
-      const stakerPosition = stakerData.positions.find(
-        (sp) => sp.tokenId === p.id
-      );
-      return {
-        ...stakerPosition,
-        ...p,
-        deposited: p.owner !== stakerPosition?.owner,
-      };
-    });
+    const positions = data.positions
+      .map((p) => {
+        const stakerPosition = stakerData.positions.find(
+          (sp) => sp.tokenId === p.id
+        );
+
+        return {
+          ...stakerPosition,
+          ...p,
+          deposited: p.owner !== stakerPosition?.owner,
+        };
+      })
+      .filter((p) => p.pool.id == poolId);
     return positions as IPosition[];
-  }, [data, stakerData]);
+  }, [data, poolId, stakerData]);
+
   return [result, loading || stakerLoading] as const;
 };
 

@@ -4,12 +4,13 @@ import { encodeAbiParameters, getAddress, parseAbiParameters } from "viem";
 export const getIncentiveStruct = (incentive: Incentiveish) => {
   const { rewardToken, pool } = incentive;
   return {
-    rewardToken: typeof rewardToken === "string" ? rewardToken : rewardToken.id,
-    pool: typeof pool === "string" ? pool : pool.id,
+    rewardToken: getAddress(
+      typeof rewardToken === "string" ? rewardToken : rewardToken.id
+    ),
+    pool: getAddress(typeof pool === "string" ? pool : pool.id),
     startTime: incentive.startTime,
     endTime: incentive.endTime,
-    minWidth: incentive.minWidth,
-    refundee: incentive.refundee,
+    refundee: getAddress(incentive.refundee),
   };
 };
 
@@ -23,7 +24,7 @@ export const encodeIncentive = (incentive: IIncentive) => {
       getAddress(incentive.pool.id),
       incentive.startTime,
       incentive.endTime,
-      incentive.refundee,
+      getAddress(incentive.refundee),
     ]
   );
 };
