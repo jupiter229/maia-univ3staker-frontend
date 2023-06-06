@@ -36,11 +36,11 @@ const columns = [
       formatUSD(row.pool.totalValueLockedUSD),
   },
   {
-    Header: "MinWidth",
+    Header: "Minimum Range",
     accessor: "minWidth",
     Cell: ({ row: { original: row } }) => (
       <>
-        <p>±{(row.minWidth * TICK_INCREMENT) / 2}%</p>
+        <p>±{row.minWidth * TICK_INCREMENT}%</p>
         <p>
           {row.minWidth} {row.minWidth == 1 ? "Tick" : "Ticks"}
         </p>
