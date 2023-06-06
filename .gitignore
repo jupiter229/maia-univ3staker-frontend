@@ -36,4 +36,5 @@ next-env.d.ts
 yarn.lock
 
 # generated typings
-src/types
+src/types/abis
+src/types/graphql
