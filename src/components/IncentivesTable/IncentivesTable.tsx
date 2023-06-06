@@ -65,19 +65,25 @@ const columns = [
     Cell: ({ row: { original: row } }) => (
       <>
         <p>
-          {(
-            ((formatBigInt(row.reward) * row.tokenPriceUSD) /
-              row.fullRangeLiquidityUSD) *
-            (YEAR / (row.endTime - row.startTime)) *
-            100
-          ).toFixed(2)}
+          {(row.tokenPriceUSD > 0 &&
+            row.fullRangeLiquidityUSD > 0 &&
+            (
+              ((formatBigInt(row.reward) * row.tokenPriceUSD) /
+                row.fullRangeLiquidityUSD) *
+              (YEAR / (row.endTime - row.startTime)) *
+              100
+            ).toFixed(2)) ||
+            0}
           % -{" "}
-          {(
-            ((formatBigInt(row.reward) * row.tokenPriceUSD) /
-              row.activeLiqudityUSD) *
-            (YEAR / (row.endTime - row.startTime)) *
-            100
-          ).toFixed(2)}
+          {(row.tokenPriceUSD > 0 &&
+            row.activeLiqudityUSD > 0 &&
+            (
+              ((formatBigInt(row.reward) * row.tokenPriceUSD) /
+                row.activeLiqudityUSD) *
+              (YEAR / (row.endTime - row.startTime)) *
+              100
+            ).toFixed(2)) ||
+            0}
           %
         </p>
       </>
@@ -89,16 +95,22 @@ const columns = [
     Cell: ({ row: { original: row } }) => (
       <>
         <p>
-          {(
-            ((row.poolDayData.feesUSD * 0.9 * 365) /
-              row.fullRangeLiquidityUSD) *
-            100
-          ).toFixed(2)}
+          {(row.poolDayData.feesUSD > 0 &&
+            row.fullRangeLiquidityUSD > 0 &&
+            (
+              ((row.poolDayData.feesUSD * 0.9 * 365) /
+                row.fullRangeLiquidityUSD) *
+              100
+            ).toFixed(2)) ||
+            0}
           % -{" "}
-          {(
-            ((row.poolDayData.feesUSD * 0.9 * 365) / row.activeLiqudityUSD) *
-            100
-          ).toFixed(2)}
+          {(row.poolDayData.feesUSD > 0 &&
+            row.activeLiqudityUSD > 0 &&
+            (
+              ((row.poolDayData.feesUSD * 0.9 * 365) / row.activeLiqudityUSD) *
+              100
+            ).toFixed(2)) ||
+            0}
           %
         </p>
       </>
@@ -118,6 +130,18 @@ const columns = [
       return "Active";
     },
   },
+  // {
+  //   Header: "Status",
+  //   accessor: "statsss",
+  //   Cell: ({ row: { original: row } }) => {
+  //     <>
+  //       { Date.now() < row.startTime *1000 && }
+  //     </>;
+  //     <>
+  //       <p></p>
+  //     </>;
+  //   },
+  // },
 ];
 
 export const IncentivesTable: React.FC<IProps> = ({ data }) => {

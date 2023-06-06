@@ -101,13 +101,13 @@ export const useIncentives = () => {
     return data.incentives
       .map((i) => {
         const pool = pools.find((p) => p.id === i.pool);
-        const poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
+        let poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
 
         const rewardToken = rewardTokens.find((t) => t.id === i.rewardToken);
         const poolToken0 = poolTokens.find((p) => p.id === pool?.token0.id);
         const poolToken1 = poolTokens.find((p) => p.id === pool?.token1.id);
 
-        const tokenPriceUSD =
+        let tokenPriceUSD =
           rewardToken?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
 
         const poolToken0PriceUSD =
@@ -117,7 +117,7 @@ export const useIncentives = () => {
 
         const activeLiqudity = pool?.liquidity;
 
-        const activeLiqudityUSD = getActiveLiquidityUSD(
+        let activeLiqudityUSD = getActiveLiquidityUSD(
           activeLiqudity,
           pool?.tick,
           pool?.feeTier,
@@ -127,18 +127,23 @@ export const useIncentives = () => {
           poolToken1PriceUSD
         );
 
-        const fullRangeLiquidityUSD =
+        let fullRangeLiquidityUSD =
           activeLiqudityUSD * positionEfficiency(pool?.feeTier, i.minWidth);
 
-        if (
-          !pool ||
-          !rewardToken ||
+        if (!pool || !rewardToken) {
+          return;
+        } else if (
           !poolDayData ||
           !tokenPriceUSD ||
           !activeLiqudityUSD ||
           !fullRangeLiquidityUSD
-        )
-          return;
+        ) {
+          poolDayData = { date: 0, feesUSD: 0, pool: pool };
+          tokenPriceUSD = 0;
+          activeLiqudityUSD = 0;
+          fullRangeLiquidityUSD = 0;
+        }
+
         return {
           ...i,
           pool,
