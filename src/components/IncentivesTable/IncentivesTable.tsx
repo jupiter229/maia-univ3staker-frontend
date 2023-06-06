@@ -53,7 +53,11 @@ const columns = [
     Cell: ({ row: { original: row } }) => (
       <>
         <p>
-          {formatBigInt(row.reward)} {row.rewardToken.symbol}
+          {formatBigInt(row.reward, {
+            decimals: row.rewardToken.decimals,
+            precision: 2,
+          })}{" "}
+          {row.rewardToken.symbol}
         </p>
         <p>{formatUSD(row.poolDayData.feesUSD * 0.9)} fees previous 24H</p>
       </>
