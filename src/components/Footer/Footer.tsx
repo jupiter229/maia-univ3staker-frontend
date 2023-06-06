@@ -11,10 +11,10 @@ const Footer = () => {
             <Image src={logo} alt="Maia DAO Logo" width={50} height={50} />
           </Link>
         </div>
-        <nav className="flex px-8 gap-12">
-          <Link href="/about" color="#ffffff">
+        <nav className="flex px-8 gap-12 text-white">
+          <a href="https://linktr.ee/maiadao" color="#ffffff">
             About
-          </Link>
+          </a>
           <Link href="/services">Services</Link>
           <Link href="/portfolio">Portfolio</Link>
           <Link href="/contact">Contact</Link>

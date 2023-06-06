@@ -1,12 +1,12 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { goerli, metis } from "@wagmi/chains";
+import { metis } from "@wagmi/chains";
 
 export enum ChainID {
   METIS = 1088,
   GOERLI = 5,
 }
 
-export const CHAINS = [metis, goerli];
+export const CHAINS = [metis];
 
 export type ChainProperty<T = any> = {
   [k in ChainID]: T;
