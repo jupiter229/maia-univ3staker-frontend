@@ -1,16 +1,15 @@
 import { Contracts, PositionManagerABI, UniswapV3StakerABI } from "@/config";
 import { Arrayable, Incentiveish } from "@/types";
 import { arrayify, encodeIncentive, getIncentiveStruct } from "@/utils";
-import { BigNumber } from "ethers";
-import { useCallback, useEffect, useState } from "react";
-import { encodeFunctionData } from "viem";
+import { useCallback } from "react";
+import { encodeFunctionData, getAddress } from "viem";
 import { useContractWrite } from "wagmi";
 import { useIncentive } from "./incentives";
 import { useWeb3 } from "./web3";
 
 export const useStakerContractWriteMulticall = (chainId: number) => {
   return useContractWrite({
-    address: Contracts.staker[chainId],
+    address: getAddress(Contracts.staker[1088]),
     abi: UniswapV3StakerABI,
     chainId: chainId,
     functionName: "multicall",
@@ -19,7 +18,7 @@ export const useStakerContractWriteMulticall = (chainId: number) => {
 
 export const useStakerContractWriteStake = (chainId: number) => {
   return useContractWrite({
-    address: Contracts.staker[chainId],
+    address: getAddress(Contracts.staker[1088]),
     abi: UniswapV3StakerABI,
     chainId: chainId,
     functionName: "stakeToken",
@@ -28,25 +27,25 @@ export const useStakerContractWriteStake = (chainId: number) => {
 
 export const useStakerContractWriteWithdraw = (chainId: number) => {
   return useContractWrite({
-    address: Contracts.staker[chainId],
+    address: getAddress(Contracts.staker[1088]),
     abi: UniswapV3StakerABI,
     chainId: chainId,
     functionName: "withdrawToken",
   });
 };
 
-export const useStakerContractWriteClaimReward = (chainId: number) => {
-  return useContractWrite({
-    address: Contracts.staker[chainId],
-    abi: UniswapV3StakerABI,
-    chainId: chainId,
-    functionName: "claimReward",
-  });
-};
+// export const useStakerContractWriteClaimReward = (chainId: number) => {
+//   return useContractWrite({
+//     address: getAddress(Contracts.staker[1088]),
+//     abi: UniswapV3StakerABI,
+//     chainId: chainId,
+//     functionName: "claimReward",
+//   });
+// };
 
 const usePositionManagerContractWriteSafeTransferFrom = (chainId: number) => {
   return useContractWrite({
-    address: Contracts.positionManager[chainId],
+    address: getAddress(Contracts.positionManager[1088]),
     abi: PositionManagerABI,
     chainId: chainId,
     functionName: "safeTransferFrom",
@@ -68,14 +67,14 @@ export const useDepositStake = (incentiveId: string) => {
       write({
         args: [
           account,
-          Contracts.staker[chainId],
+          getAddress(Contracts.staker[1088]),
           nftId.toString(),
           encodeIncentive(incentive),
         ],
       });
       return isSuccess ? data : isLoading;
     },
-    [write, incentive, account, chainId, isSuccess, data, isLoading]
+    [write, incentive, account, isSuccess, data, isLoading]
   );
 
   return stake;
@@ -172,48 +171,27 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
   return unstake;
 };
 
-export const useIncentiveRewards = (incentiveId: string) => {
-  const { account, chainId } = useWeb3();
-  const { data, isLoading, isSuccess, write } =
-    useStakerContractWriteClaimReward(chainId);
-  const [incentive] = useIncentive(incentiveId);
-  const [rewards, setRewards] = useState<BigNumber>(BigNumber.from(0));
+// export const useIncentiveRewards = (incentiveId: string) => {
+//   const { account, chainId } = useWeb3();
+//   const { data, isLoading, isSuccess, write } =
+//     useStakerContractWriteClaimReward(chainId);
+//   const [incentive] = useIncentive(incentiveId);
+//   const [rewards, setRewards] = useState<BigNumber>(BigNumber.from(0));
 
-  const claimRewards = useCallback(async () => {
-    if (!incentive) throw "No incentive";
-    if (!write) throw "No staker";
-    if (!account) throw "No account";
+//   const claimRewards = useCallback(async () => {
+//     if (!incentive) throw "No incentive";
+//     if (!write) throw "No staker";
+//     if (!account) throw "No account";
 
-    write({ args: [incentive.rewardToken.id, account, 0] });
+//     write({ args: [incentive.rewardToken.id, account, 0] });
 
-    return isSuccess ? data : isLoading;
-  }, [account, data, incentive, isLoading, isSuccess, write]);
+//     return isSuccess ? data : isLoading;
+//   }, [account, data, incentive, isLoading, isSuccess, write]);
 
-  useEffect(() => {
-    if (!incentive || !staker || !account) return;
-    staker.rewards(incentive.rewardToken.id, account).then(setRewards);
-  }, [account, incentive, staker]);
+//   useEffect(() => {
+//     if (!incentive || !staker || !account) return;
+//     staker.rewards(incentive.rewardToken.id, account).then(setRewards);
+//   }, [account, incentive, staker]);
 
-  return { ...incentive?.rewardToken, rewards, claimRewards };
-};
-
-export const useIsStakedInIncentive = (
-  nftId: string | number,
-  incentiveId: string
-) => {
-  const { chainId } = useWeb3();
-
-  const staker = useStakerContract();
-  const [isStaked, setIsStaked] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!staker) return;
-    staker.stakes(nftId.toString(), incentiveId).then((data) => {
-      setIsStaked(data.liquidity.gt(0));
-      setLoading(false);
-    });
-  }, [incentiveId, nftId, staker]);
-
-  return [isStaked, loading];
-};
+//   return { ...incentive?.rewardToken, rewards, claimRewards };
+// };
