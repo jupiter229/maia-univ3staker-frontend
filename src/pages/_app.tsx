@@ -26,7 +26,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig client={wagmiClient}>
+    <WagmiConfig config={wagmiClient}>
       <RainbowKitProvider chains={CHAINS} showRecentTransactions>
         <Layout>
           <Component {...pageProps} />

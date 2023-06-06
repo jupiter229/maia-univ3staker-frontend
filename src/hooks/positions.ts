@@ -59,25 +59,6 @@ export const useUserStakedPositions = () => {
   const [positions, positionsLoading] = useUserPositions();
   const [incentives, incentivesLoading] = useIncentives();
 
-  // TODO: remove this when we have a way to get staked positions from the graph
-  // const staker = useStakerContract();
-  // const [result, setResult] = useState<IStakedPosition[]>();
-  // useEffect(() => {
-  //   if (!incentives || !positions || !staker) return;
-  //   const promises = positions.map(async (p) => {
-  //     const incentive = await findAsync(incentives, async (i) => {
-  //       const { liquidity } = await staker.stakes(p.id, i.id);
-  //       return liquidity.gt(0);
-  //     });
-  //     if (!incentive) return;
-  //     return { ...p, incentive };
-  //   });
-  //   Promise.all(promises).then((result) =>
-  //     setResult(result.filter(Boolean) as IStakedPosition[])
-  //   );
-  // }, [incentives, positions, staker]);
-  // return [result, incentivesLoading || positionsLoading || !result] as const;
-
   const result = useMemo(() => {
     if (!positions) return;
     const result = positions

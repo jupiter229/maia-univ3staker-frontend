@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { TICK_INCREMENT, YEAR } from "@/config/constants/const";
 import { IIncentive } from "@/types";
-import { formatBigNumber, formatDateTime, formatUSD } from "@/utils";
+import { formatBigInt, formatDateTime, formatUSD } from "@/utils";
 import Link from "next/link";
 import { Table } from "../Table";
 
@@ -53,7 +53,7 @@ const columns = [
     Cell: ({ row: { original: row } }) => (
       <>
         <p>
-          {formatBigNumber(row.reward)} {row.rewardToken.symbol}
+          {formatBigInt(row.reward)} {row.rewardToken.symbol}
         </p>
         <p>{formatUSD(row.poolDayData.feesUSD * 0.9)} fees previous 24H</p>
       </>
@@ -66,14 +66,14 @@ const columns = [
       <>
         <p>
           {(
-            ((formatBigNumber(row.reward) * row.tokenPriceUSD) /
+            ((formatBigInt(row.reward) * row.tokenPriceUSD) /
               row.fullRangeLiquidityUSD) *
             (YEAR / (row.endTime - row.startTime)) *
             100
           ).toFixed(2)}
           % -{" "}
           {(
-            ((formatBigNumber(row.reward) * row.tokenPriceUSD) /
+            ((formatBigInt(row.reward) * row.tokenPriceUSD) /
               row.activeLiqudityUSD) *
             (YEAR / (row.endTime - row.startTime)) *
             100

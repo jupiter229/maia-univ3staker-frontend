@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useWeb3 } from "@/hooks";
 import { IPosition } from "@/types";
-import { formatBigNumber, formatDateDiff } from "@/utils";
+import { formatBigInt, formatDateDiff } from "@/utils";
 import { useMemo } from "react";
 import { ConnectWallet } from "../ConnectWallet";
 import { Table } from "../Table";
@@ -22,10 +22,10 @@ const staticColumns = [
   {
     Header: "Liquidity",
     accessor: "liquidity",
-    Cell: ({ value }) => formatBigNumber(value),
+    Cell: ({ value }) => formatBigInt(value),
   },
   {
-    Header: "Age",
+    Header: "Position Age",
     accessor: "transaction",
     Cell: ({ value }) => formatDateDiff(value.timestamp * 1000),
   },

@@ -1,6 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { goerli } from "wagmi";
-import { metis } from "@wagmi/chains";
+import { goerli, metis } from "@wagmi/chains";
 
 export enum ChainID {
   METIS = 1088,
