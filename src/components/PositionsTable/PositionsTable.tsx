@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useWeb3 } from "@/hooks";
 import { IPosition } from "@/types";
-import { formatBigInt, formatDateDiff } from "@/utils";
+import { formatDateDiff, formatUSD } from "@/utils";
 import Link from "next/link";
 import { useMemo } from "react";
 import { ConnectWallet } from "../ConnectWallet";
@@ -21,11 +21,6 @@ const staticColumns = [
     accessor: "id",
   },
   {
-    Header: "Liquidity",
-    accessor: "liquidity",
-    Cell: ({ value }) => formatBigInt(value),
-  },
-  {
     Header: "Position Age",
     accessor: "transaction",
     Cell: ({ value }) => formatDateDiff(value.timestamp * 1000),
@@ -42,6 +37,15 @@ export const PositionsTable: React.FC<IProps> = ({
     () => [
       ...staticColumns,
       {
+        Header: "Position Value",
+        accessor: "value",
+        Cell: ({ value }) =>
+          formatUSD(
+            (data[0].liquidity / data[0].pool.liquidity) *
+              data[0].pool.totalValueLockedUSD
+          ),
+      },
+      {
         Header: "",
         accessor: "stake",
         Cell: ({ row: { original } }) => (
@@ -49,7 +53,7 @@ export const PositionsTable: React.FC<IProps> = ({
         ),
       },
     ],
-    [incentiveId]
+    [incentiveId, data]
   );
   console.log(data);
   return (
@@ -70,7 +74,7 @@ export const PositionsTable: React.FC<IProps> = ({
                   data[0].pool.feeTier
                 : "."
             }
-            class="text-white col-start-5 bg-gradient-to-br from-purple-800 to-blue-800 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg py-2.5 text-center"
+            className="text-white col-start-5 bg-gradient-to-br from-purple-800 to-blue-800 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg py-2.5 text-center"
           >
             Add Liquidity
           </Link>
