@@ -26,7 +26,7 @@ export const ActionButtons: React.FC<IProps> = ({
       id && incentive
         ? incentive
         : (position.stakedIncentives
-            .map((i) => i.incentive)
+            .map((i: any) => i.incentive)
             .filter(Boolean) as Incentiveish[]),
     [id, incentive, position.stakedIncentives]
   );

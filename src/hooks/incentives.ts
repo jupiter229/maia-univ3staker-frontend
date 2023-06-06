@@ -1,13 +1,13 @@
 import {
-  IIncentive,
-  useGetEthPriceQuery,
-  useGetIncentiveQuery,
-  useGetIncentivesQuery,
-  useGetPoolDayDataQuery,
-  useGetPoolQuery,
-  useGetPoolsQuery,
-  useGetTokenQuery,
-  useGetTokensQuery,
+    IIncentive,
+    useGetEthPriceQuery,
+    useGetIncentiveQuery,
+    useGetIncentivesQuery,
+    useGetPoolDayDataQuery,
+    useGetPoolQuery,
+    useGetPoolsQuery,
+    useGetTokenQuery,
+    useGetTokensQuery,
 } from "@/types";
 import { getActiveLiquidityUSD, positionEfficiency } from "@/utils/tvl";
 import { useMemo } from "react";
@@ -57,7 +57,7 @@ export const useIncentives = () => {
   });
 
   const { data: poolsData, loading: poolsLoading } = useGetPoolsQuery({
-    variables: { filter: { id_in: data?.incentives.map((i) => i.pool) } },
+    variables: { filter: { id_in: data?.incentives.map((i: any) => i.pool) } },
   });
 
   const day = (new Date().getTime() / 86400000 - 1).toFixed(0);
@@ -65,7 +65,7 @@ export const useIncentives = () => {
   const { data: poolsDayData, loading: poolsDayLoading } =
     useGetPoolDayDataQuery({
       variables: {
-        filter: { id_in: data?.incentives.map((i) => i.pool + "-" + day) },
+        filter: { id_in: data?.incentives.map((i: any) => i.pool + "-" + day) },
       },
     });
 
@@ -73,14 +73,14 @@ export const useIncentives = () => {
     useGetTokensQuery({
       variables: {
         filter: {
-          id_in: poolsData?.pools.map((i) => [i.token0.id, i.token1.id]).flat(),
+          id_in: poolsData?.pools.map((i: any) => [i.token0.id, i.token1.id]).flat(),
         },
       },
     });
 
   const { data: rewardTokensData, loading: tokensLoading } = useGetTokensQuery({
     variables: {
-      filter: { id_in: data?.incentives.map((i) => i.rewardToken) },
+      filter: { id_in: data?.incentives.map((i: any) => i.rewardToken) },
     },
   });
 
@@ -99,7 +99,7 @@ export const useIncentives = () => {
     )
       return;
     return data.incentives
-      .map((i) => {
+      .map((i: any) => {
         const pool = pools.find((p) => p.id === i.pool);
         let poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
 

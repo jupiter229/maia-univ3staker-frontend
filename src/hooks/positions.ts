@@ -1,8 +1,8 @@
 import {
-  IPosition,
-  IStakedPosition,
-  useGetPositionsQuery,
-  useGetStakerPositionsQuery,
+    IPosition,
+    IStakedPosition,
+    useGetPositionsQuery,
+    useGetStakerPositionsQuery,
 } from "@/types";
 import { useMemo } from "react";
 import { useIncentive, useIncentives } from "./incentives";
@@ -68,7 +68,7 @@ export const useUserStakedPositions = () => {
     const result = positions
       .map((p) => {
         const id = p.stakedIncentives?.[0]?.incentive?.id;
-        const incentive = incentives?.find((i) => i.id === id);
+        const incentive = incentives?.find((i: any) => i.id === id);
         if (!incentive) return;
         return { ...p, incentive };
       })
