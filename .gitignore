@@ -34,7 +34,3 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 yarn.lock
-
-# generated typings
-src/types/abis
-src/types/graphql
