@@ -1,5 +1,5 @@
 import { IIncentive, IPosition, Incentiveish } from "@/types";
-import { encodeAbiParameters, parseAbiParameters } from "viem";
+import { encodeAbiParameters, getAddress, parseAbiParameters } from "viem";
 
 export const getIncentiveStruct = (incentive: Incentiveish) => {
   const { rewardToken, pool } = incentive;
@@ -15,10 +15,12 @@ export const getIncentiveStruct = (incentive: Incentiveish) => {
 
 export const encodeIncentive = (incentive: IIncentive) => {
   return encodeAbiParameters(
-    parseAbiParameters("address, address, uint256, uint256, address"),
+    parseAbiParameters(
+      "address rewardToken, address pool, uint256 startTime, uint256 endTime, address refundee"
+    ),
     [
-      incentive.rewardToken.id,
-      incentive.pool.id,
+      getAddress(incentive.rewardToken.id),
+      getAddress(incentive.pool.id),
       incentive.startTime,
       incentive.endTime,
       incentive.refundee,
