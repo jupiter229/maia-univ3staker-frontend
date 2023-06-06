@@ -13,11 +13,11 @@ const Footer = () => {
         </div>
         <nav className="flex px-8 gap-12 text-white">
           <a href="https://linktr.ee/maiadao" color="#ffffff">
-            About
+            Relevant Links
           </a>
-          <Link href="/services">Services</Link>
-          <Link href="/portfolio">Portfolio</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="https://uni.maiadao.io/#/swap">Trade on UniMaia</Link>
+          <Link href="https://hermes.maiadao.io/">Trade on Hermes</Link>
+          <Link href="https://maiadao.io/">Stake on Maia</Link>
         </nav>
       </div>
       <style jsx>{`
