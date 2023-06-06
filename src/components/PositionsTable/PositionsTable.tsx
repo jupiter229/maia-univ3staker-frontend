@@ -35,14 +35,21 @@ export const PositionsTable: React.FC<IProps> = ({
   const { account } = useWeb3();
   const columns = useMemo(
     () => [
-      ...staticColumns,
+      {
+        Header: "NFT",
+        accessor: "id",
+      },
+      {
+        Header: "Position Age",
+        accessor: "transaction",
+        Cell: ({ value }) => formatDateDiff(value.timestamp * 1000),
+      },
       {
         Header: "Position Value",
         accessor: "value",
-        Cell: ({ value }) =>
+        Cell: ({ row: { original: row } }) =>
           formatUSD(
-            (data[0].liquidity / data[0].pool.liquidity) *
-              data[0].pool.totalValueLockedUSD
+            (row.liquidity / row.pool.liquidity) * row.pool.totalValueLockedUSD
           ),
       },
       {
@@ -53,7 +60,7 @@ export const PositionsTable: React.FC<IProps> = ({
         ),
       },
     ],
-    [incentiveId, data]
+    [incentiveId]
   );
   console.log(data);
   return (
@@ -65,7 +72,7 @@ export const PositionsTable: React.FC<IProps> = ({
             type="button"
             target="_blank"
             href={
-              data !== undefined
+              data && data[0] !== undefined
                 ? "https://uni.maiadao.io/#/add/" +
                   data[0].pool.token0.id +
                   "/" +
