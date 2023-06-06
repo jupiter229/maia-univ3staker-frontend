@@ -24,7 +24,7 @@ export const useUserPositions = (poolId?: string) => {
       variables: { where: { owner: address || "" } },
       client,
     });
-  const id_in = stakerData?.positions.map((p) => p.tokenId) || [];
+  const id_in = stakerData?.positions.map((p: any) => p.tokenId) || [];
   const { data, loading } = useGetPositionsQuery({
     variables: {
       where: {
@@ -41,7 +41,7 @@ export const useUserPositions = (poolId?: string) => {
   const result = useMemo(() => {
     if (!data || !stakerData) return;
     const positions = data.positions
-      .map((p) => {
+      .map((p: any) => {
         const stakerPosition = stakerData.positions.find(
           (sp) => sp.tokenId === p.id
         );
@@ -52,7 +52,7 @@ export const useUserPositions = (poolId?: string) => {
           deposited: p.owner !== stakerPosition?.owner,
         };
       })
-      .filter((p) => p.pool.id == poolId);
+      .filter((p: any) => p.pool.id == poolId);
     return positions as IPosition[];
   }, [data, poolId, stakerData]);
 
@@ -66,7 +66,7 @@ export const useUserStakedPositions = () => {
   const result = useMemo(() => {
     if (!positions) return;
     const result = positions
-      .map((p) => {
+      .map((p: any) => {
         const id = p.stakedIncentives?.[0]?.incentive?.id;
         const incentive = incentives?.find((i: any) => i.id === id);
         if (!incentive) return;

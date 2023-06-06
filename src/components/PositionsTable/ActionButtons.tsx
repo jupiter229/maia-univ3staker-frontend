@@ -40,7 +40,7 @@ export const ActionButtons: React.FC<IProps> = ({
   //   useIsStakedInIncentive(position.id, incentiveId);
   // const loading = isStakedInIncentiveLoading || incentiveLoading;
   const isStakedInIncentive = position.stakedIncentives.find(
-    (i) => i.incentive?.id === incentiveId
+    (i: any) => i.incentive?.id === incentiveId
   );
   const loading = incentiveLoading;
   return loading ? null : (

@@ -1,13 +1,13 @@
 import {
-    IIncentive,
-    useGetEthPriceQuery,
-    useGetIncentiveQuery,
-    useGetIncentivesQuery,
-    useGetPoolDayDataQuery,
-    useGetPoolQuery,
-    useGetPoolsQuery,
-    useGetTokenQuery,
-    useGetTokensQuery,
+  IIncentive,
+  useGetEthPriceQuery,
+  useGetIncentiveQuery,
+  useGetIncentivesQuery,
+  useGetPoolDayDataQuery,
+  useGetPoolQuery,
+  useGetPoolsQuery,
+  useGetTokenQuery,
+  useGetTokensQuery,
 } from "@/types";
 import { getActiveLiquidityUSD, positionEfficiency } from "@/utils/tvl";
 import { useMemo } from "react";
@@ -100,12 +100,12 @@ export const useIncentives = () => {
       return;
     return data.incentives
       .map((i: any) => {
-        const pool = pools.find((p) => p.id === i.pool);
+        const pool = pools.find((p: any) => p.id === i.pool);
         let poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
 
-        const rewardToken = rewardTokens.find((t) => t.id === i.rewardToken);
-        const poolToken0 = poolTokens.find((p) => p.id === pool?.token0.id);
-        const poolToken1 = poolTokens.find((p) => p.id === pool?.token1.id);
+        const rewardToken = rewardTokens.find((t: any) => t.id === i.rewardToken);
+        const poolToken0 = poolTokens.find((p: any) => p.id === pool?.token0.id);
+        const poolToken1 = poolTokens.find((p: any) => p.id === pool?.token1.id);
 
         let tokenPriceUSD =
           rewardToken?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
