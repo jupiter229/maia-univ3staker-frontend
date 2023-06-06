@@ -1,7 +1,7 @@
 // @ts-nocheck
+import { TICK_INCREMENT, YEAR } from "@/config/constants/const";
 import { IIncentive } from "@/types";
 import { formatBigNumber, formatDateTime, formatUSD } from "@/utils";
-import { getActiveLiquidityUSD } from "@/utils/tvl";
 import Link from "next/link";
 import { Table } from "../Table";
 
@@ -38,44 +38,69 @@ const columns = [
   {
     Header: "MinWidth",
     accessor: "minWidth",
-  },
-  // {
-  //   Header: "Reward Token",
-  //   accessor: "reward",
-  //   Cell: ({ row: { original: row } }) => row.rewardToken.symbol,
-  // },
-  {
-    Header: "Total Reward",
-    accessor: "totalReward",
     Cell: ({ row: { original: row } }) => (
       <>
+        <p>±{(row.minWidth * TICK_INCREMENT) / 2}%</p>
         <p>
-          {formatBigNumber(row.reward)} {row.rewardToken.symbol}
-        </p>
-        <p>
-          {(
-            ((formatBigNumber(row.reward) * row.tokenPriceUSD) /
-              getActiveLiquidityUSD(
-                row.pool.id,
-                row.sqrtPrice,
-                row.activeLiquidity,
-                row.totalLiquidity,
-                row.pool.poolToken0PriceUSD,
-                row.pool.poolToken1PriceUSD
-              )) *
-            100
-          ).toFixed(2)}
-          % APR
+          {row.minWidth} {row.minWidth == 1 ? "Tick" : "Ticks"}
         </p>
       </>
     ),
   },
   {
-    Header: "24H Fee",
-    accessor: "24Fee",
+    Header: "Total Rewards And Fees",
+    accessor: "totalRewards",
     Cell: ({ row: { original: row } }) => (
       <>
-        <p>{formatUSD(row.poolDayData.feesUSD * 0.9)}</p>
+        <p>
+          {formatBigNumber(row.reward)} {row.rewardToken.symbol}
+        </p>
+        <p>{formatUSD(row.poolDayData.feesUSD * 0.9)} fees previous 24H</p>
+      </>
+    ),
+  },
+  {
+    Header: "Reward APR",
+    accessor: "rewardapr",
+    Cell: ({ row: { original: row } }) => (
+      <>
+        <p>
+          {(
+            ((formatBigNumber(row.reward) * row.tokenPriceUSD) /
+              row.fullRangeLiquidityUSD) *
+            (YEAR / (row.endTime - row.startTime)) *
+            100
+          ).toFixed(2)}
+          % -{" "}
+          {(
+            ((formatBigNumber(row.reward) * row.tokenPriceUSD) /
+              row.activeLiqudityUSD) *
+            (YEAR / (row.endTime - row.startTime)) *
+            100
+          ).toFixed(2)}
+          %
+        </p>
+      </>
+    ),
+  },
+  {
+    Header: "Fee APR",
+    accessor: "feeapr",
+    Cell: ({ row: { original: row } }) => (
+      <>
+        <p>
+          {(
+            ((row.poolDayData.feesUSD * 0.9 * 365) /
+              row.fullRangeLiquidityUSD) *
+            100
+          ).toFixed(2)}
+          % -{" "}
+          {(
+            ((row.poolDayData.feesUSD * 0.9 * 365) / row.activeLiqudityUSD) *
+            100
+          ).toFixed(2)}
+          %
+        </p>
       </>
     ),
   },

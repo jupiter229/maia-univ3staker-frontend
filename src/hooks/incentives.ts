@@ -6,10 +6,10 @@ import {
   useGetPoolDayDataQuery,
   useGetPoolQuery,
   useGetPoolsQuery,
-  useGetTickQuery,
   useGetTokenQuery,
   useGetTokensQuery,
 } from "@/types";
+import { getActiveLiquidityUSD, positionEfficiency } from "@/utils/tvl";
 import { useMemo } from "react";
 import { useGraphClient } from "./web3";
 
@@ -60,8 +60,6 @@ export const useIncentives = () => {
     variables: { filter: { id_in: data?.incentives.map((i) => i.pool) } },
   });
 
-  console.log("poolsData", poolsData);
-
   const day = (new Date().getTime() / 86400000 - 1).toFixed(0);
 
   const { data: poolsDayData, loading: poolsDayLoading } =
@@ -86,34 +84,6 @@ export const useIncentives = () => {
     },
   });
 
-  console.log(
-    "tickQuery",
-    poolsData?.pools.map(
-      (p) =>
-        p.id +
-        "#" +
-        Math.floor(p.tick / ((p.feeTier / 100) * 2)) * ((p.feeTier / 100) * 2)
-    )
-  );
-
-  const { data: ticksData, loading: ticksLoading } = useGetTickQuery({
-    variables: {
-      filter: {
-        id_in: poolsData?.pools.map(
-          (p) =>
-            p.id +
-            "#" +
-            Math.floor(p.tick / ((p.feeTier / 100) * 2)) *
-              ((p.feeTier / 100) * 2)
-        ),
-      },
-    },
-  });
-
-  console.log("pools", poolsData?.pools);
-
-  console.log("ticksData", ticksData);
-
   const result: IIncentive[] | undefined = useMemo(() => {
     const pools = poolsData?.pools;
     const rewardTokens = rewardTokensData?.tokens;
@@ -125,13 +95,11 @@ export const useIncentives = () => {
       !rewardTokens ||
       !poolsDayDatas ||
       !ethPrice ||
-      !poolTokens ||
-      !ticksData
+      !poolTokens
     )
       return;
     return data.incentives
       .map((i) => {
-        console.log("ENTERED");
         const pool = pools.find((p) => p.id === i.pool);
         const poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
 
@@ -141,35 +109,34 @@ export const useIncentives = () => {
 
         const tokenPriceUSD =
           rewardToken?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
+
         const poolToken0PriceUSD =
           poolToken0?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
         const poolToken1PriceUSD =
           poolToken1?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
 
-        const feeTier = pool?.feeTier;
         const activeLiqudity = pool?.liquidity;
-        const totalLiquidty = pool?.totalLiquidity;
-        const currentSqrPrice = pool?.sqrtPrice;
-        const currentTick = ticksData.ticks.find(
-          (t) => t.pool.id === pool?.id && t.tickIdx === pool?.tick
+
+        const activeLiqudityUSD = getActiveLiquidityUSD(
+          activeLiqudity,
+          pool?.tick,
+          pool?.feeTier,
+          poolToken0?.decimals,
+          poolToken1?.decimals,
+          poolToken0PriceUSD,
+          poolToken1PriceUSD
         );
 
-        console.log("currentTick", currentTick);
+        const fullRangeLiquidityUSD =
+          activeLiqudityUSD * positionEfficiency(pool?.feeTier, i.minWidth);
 
         if (
           !pool ||
           !rewardToken ||
           !poolDayData ||
           !tokenPriceUSD ||
-          !activeLiqudity ||
-          !totalLiquidty ||
-          !currentSqrPrice ||
-          !currentTick ||
-          !feeTier ||
-          !poolToken0 ||
-          !poolToken1 ||
-          !poolToken0PriceUSD ||
-          !poolToken1PriceUSD
+          !activeLiqudityUSD ||
+          !fullRangeLiquidityUSD
         )
           return;
         return {
@@ -178,15 +145,8 @@ export const useIncentives = () => {
           rewardToken,
           poolDayData,
           tokenPriceUSD,
-          activeLiqudity,
-          totalLiquidty,
-          currentSqrPrice,
-          currentTick,
-          poolToken0,
-          poolToken1,
-          poolToken0PriceUSD,
-          poolToken1PriceUSD,
-          feeTier,
+          activeLiqudityUSD,
+          fullRangeLiquidityUSD,
         };
       })
       .filter(Boolean) as IIncentive[];
@@ -197,16 +157,14 @@ export const useIncentives = () => {
     data,
     ethPrice,
     poolTokensData?.tokens,
-    ticksData,
   ]);
-  console.log("EXITED");
+
   const loading =
     incentivesLoading ||
     poolsLoading ||
     tokensLoading ||
     ethPriceLoading ||
     poolsDayLoading ||
-    poolTokensLoading ||
-    ticksLoading;
+    poolTokensLoading;
   return [result, loading] as const;
 };

@@ -93,15 +93,3 @@ query GetEthPrice($filter: Bundle_filter) {
     ethPriceUSD
   }
 }
-
-query GetTick($filter: Tick_filter) {
-  ticks(where: $filter) {
-    pool{
-      id
-    }
-    tickIdx
-    liquidityNet
-  }
-}
-
-
