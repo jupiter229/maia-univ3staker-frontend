@@ -67,7 +67,11 @@ export const PositionsTable: React.FC<IProps> = ({
         Cell: ({ row: { original: row } }) => (
           <>
             <p>
-              ±{(row.tickUpper.tickIdx - row.tickLower.tickIdx) * TICK_WIDTH}%
+              {(
+                (row.tickUpper.tickIdx - row.tickLower.tickIdx) *
+                TICK_WIDTH
+              ).toFixed(2)}
+              %
             </p>
             <p>
               {row.tickUpper.tickIdx - row.tickLower.tickIdx}{" "}
@@ -76,6 +80,18 @@ export const PositionsTable: React.FC<IProps> = ({
                 : "Ticks"}
             </p>
           </>
+        ),
+      },
+      {
+        Header: "Manage Liquidity",
+        accessor: "manage",
+        Cell: ({ row: { original } }) => (
+          <Link
+            target="_blank"
+            href={`https://uni.maiadao.io/#/pools/${original.id}`}
+          >
+            <Button>Liquidity Page</Button>
+          </Link>
         ),
       },
       {

@@ -142,11 +142,9 @@ const columns = [
     Header: "",
     accessor: "link",
     Cell: ({ row: { original } }) => (
-      <>
-        <Link href={`/${original.id}`}>
-          <Button>Stake</Button>
-        </Link>
-      </>
+      <Link href={`/${original.id}`}>
+        <Button>Stake</Button>
+      </Link>
     ),
   },
 ];
