@@ -42,7 +42,6 @@ export const PositionsTable: React.FC<IProps> = ({
   title = "My Positions",
 }) => {
   const { account } = useWeb3();
-  console.log("data", data);
   const columns = useMemo(
     () => [
       {
@@ -89,9 +88,7 @@ export const PositionsTable: React.FC<IProps> = ({
         Cell: ({ row: { original: row } }) => (
           <>
             {formatUSD(
-              row.rewards != undefined
-                ? formatBigInt(row.rewards, row.incentive.rewardToken.decimals)
-                : 0
+              formatBigInt(row.reward, row.incentive.rewardToken.decimals)
             )}
           </>
         ),
