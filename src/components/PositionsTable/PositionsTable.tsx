@@ -97,12 +97,16 @@ export const PositionsTable: React.FC<IProps> = ({
       {
         Header: "",
         accessor: "stake",
-        Cell: ({ row: { original } }) => (
-          <ActionButtons incentiveId={incentiveId} position={original} />
-        ),
+        Cell: ({ row: { original: row } }) =>
+          incentive !== null &&
+          incentive.minWidth > row.tickUpper.tickIdx - row.tickLower.tickIdx ? (
+            "Position range to low to stake"
+          ) : (
+            <ActionButtons incentiveId={incentiveId} position={row} />
+          ),
       },
     ],
-    [incentiveId]
+    [incentive, incentiveId]
   );
 
   return (

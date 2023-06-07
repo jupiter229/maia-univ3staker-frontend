@@ -15,6 +15,7 @@ export const StakePage: NextPage<IProps> = ({ incentiveId }) => {
     incentive: incentive,
     positions: [userPoolPositions],
   } = useUserIncentivePositions(incentiveId);
+
   return (
     <PositionsTable
       data={userPoolPositions}
