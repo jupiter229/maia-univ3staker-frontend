@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { TICK_WIDTH, YEAR } from "@/config/constants/const";
 import { useWeb3 } from "@/hooks";
-import { IIncentive, IPosition } from "@/types";
+import { IIncentive } from "@/types";
 import {
   formatBigInt,
   formatDateDiff,
@@ -17,7 +17,7 @@ import { ActionButtons } from "./ActionButtons";
 
 interface IProps {
   incentiveId?: string;
-  data?: IPosition[];
+  data?: any[];
   hasExpired?: boolean;
   title?: string;
   incentive?: IIncentive;
@@ -42,6 +42,7 @@ export const PositionsTable: React.FC<IProps> = ({
   title = "My Positions",
 }) => {
   const { account } = useWeb3();
+  console.log("data", data);
   const columns = useMemo(
     () => [
       {
@@ -83,6 +84,13 @@ export const PositionsTable: React.FC<IProps> = ({
         ),
       },
       {
+        Header: "Position Rewards",
+        accessor: "rewards",
+        Cell: ({ row: { original: row } }) => (
+          <>{formatBigInt(row.rewards, row.incentive.rewardToken.decimals)}</>
+        ),
+      },
+      {
         Header: "Manage Liquidity",
         accessor: "manage",
         Cell: ({ row: { original } }) => (
@@ -90,7 +98,7 @@ export const PositionsTable: React.FC<IProps> = ({
             target="_blank"
             href={`https://uni.maiadao.io/#/pools/${original.id}`}
           >
-            <Button>Liquidity Page</Button>
+            <Button>Manage Pool</Button>
           </Link>
         ),
       },
