@@ -220,13 +220,11 @@ export const useIncentiveRewards = (
   );
 
   const result = useMemo(() => {
-    if (!args || isError || !data) return;
+    if (!args || isError || isLoading || !data) return;
 
-    return isLoading
-      ? []
-      : data.map((rewards, i) => {
-          return rewards.result[0];
-        });
+    return data.map((rewards) => {
+      rewards.result[0];
+    });
   }, [args, data, isError, isLoading]);
 
   return result as const;
