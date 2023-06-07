@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useWeb3 } from "@/hooks";
 import { IPosition } from "@/types";
-import { formatBigInt, formatDateDiff } from "@/utils";
+import { formatDateDiff, formatUSD } from "@/utils";
 import Link from "next/link";
 import { useMemo } from "react";
 import { Button } from "../Button";
@@ -22,11 +22,6 @@ const staticColumns = [
     accessor: "id",
   },
   {
-    Header: "Liquidity",
-    accessor: "liquidity",
-    Cell: ({ value }) => formatBigInt(value),
-  },
-  {
     Header: "Position Age",
     accessor: "transaction",
     Cell: ({ value }) => formatDateDiff(value.timestamp * 1000),
@@ -41,7 +36,23 @@ export const PositionsTable: React.FC<IProps> = ({
   const { account } = useWeb3();
   const columns = useMemo(
     () => [
-      ...staticColumns,
+      {
+        Header: "NFT",
+        accessor: "id",
+      },
+      {
+        Header: "Position Age",
+        accessor: "transaction",
+        Cell: ({ value }) => formatDateDiff(value.timestamp * 1000),
+      },
+      {
+        Header: "Position Value",
+        accessor: "value",
+        Cell: ({ row: { original: row } }) =>
+          formatUSD(
+            (row.liquidity / row.pool.liquidity) * row.pool.totalValueLockedUSD
+          ),
+      },
       {
         Header: "",
         accessor: "stake",
