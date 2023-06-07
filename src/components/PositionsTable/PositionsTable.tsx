@@ -53,13 +53,30 @@ export const PositionsTable: React.FC<IProps> = ({
         accessor: "transaction",
         Cell: ({ value }) => formatDateDiff(value.timestamp * 1000),
       },
+      // {
+      //   Header: "Position Value",
+      //   accessor: "value",
+      //   Cell: ({ row: { original: row } }) =>
+      //     formatUSD(
+      //       (row.liquidity / row.pool.liquidity) * row.pool.totalValueLockedUSD
+      //     ),
+      // },
       {
-        Header: "Position Value",
-        accessor: "value",
-        Cell: ({ row: { original: row } }) =>
-          formatUSD(
-            (row.liquidity / row.pool.liquidity) * row.pool.totalValueLockedUSD
-          ),
+        Header: "Position Range",
+        accessor: "range",
+        Cell: ({ row: { original: row } }) => (
+          <>
+            <p>
+              ±{(row.tickUpper.tickIdx - row.tickLower.tickIdx) * TICK_WIDTH}%
+            </p>
+            <p>
+              {row.tickUpper.tickIdx - row.tickLower.tickIdx}{" "}
+              {row.tickUpper.tickIdx - row.tickLower.tickIdx == 1
+                ? "Tick"
+                : "Ticks"}
+            </p>
+          </>
+        ),
       },
       {
         Header: "",
@@ -95,9 +112,9 @@ export const PositionsTable: React.FC<IProps> = ({
               </Link>
             )}
           </h5>
-          <div className="bg-dark-hard rounded-xl p-4 text-white w-full divide-y divide-blue-200">
-            <div className="text-md font-semibold px-6 w-full grid grid-cols-5 mb-1">
-              {data !== undefined && data.length > 0 && (
+          {data !== undefined && data.length > 0 && (
+            <div className="bg-dark-hard rounded-xl p-4 text-white w-full divide-y divide-blue-200">
+              <div className="text-md font-semibold px-6 w-full grid grid-cols-5 mb-1">
                 <>
                   <p>Pool</p>
                   <p>Duration</p>
@@ -105,10 +122,8 @@ export const PositionsTable: React.FC<IProps> = ({
                   <p>Minimum Range</p>
                   <p>Rewards APR</p>
                 </>
-              )}
-            </div>
-            <h5 className="text-md px-6 w-full grid grid-cols-5 pt-2">
-              {data !== undefined && data.length > 0 && (
+              </div>
+              <h5 className="text-md px-6 w-full grid grid-cols-5 pt-2">
                 <>
                   <p>
                     {data[0].pool.token0.symbol}/
@@ -154,9 +169,9 @@ export const PositionsTable: React.FC<IProps> = ({
                     %
                   </p>
                 </>
-              )}
-            </h5>
-          </div>
+              </h5>
+            </div>
+          )}
         </>
       )}
       {account ? (
