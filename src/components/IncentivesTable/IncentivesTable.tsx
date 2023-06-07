@@ -3,6 +3,7 @@ import { TICK_INCREMENT, YEAR } from "@/config/constants/const";
 import { IIncentive } from "@/types";
 import { formatBigInt, formatDateTime, formatUSD } from "@/utils";
 import Link from "next/link";
+import { Button } from "../Button";
 import { Table } from "../Table";
 
 interface IProps {
@@ -134,18 +135,17 @@ const columns = [
       return "Active";
     },
   },
-  // {
-  //   Header: "Status",
-  //   accessor: "statsss",
-  //   Cell: ({ row: { original: row } }) => {
-  //     <>
-  //       { Date.now() < row.startTime *1000 && }
-  //     </>;
-  //     <>
-  //       <p></p>
-  //     </>;
-  //   },
-  // },
+  {
+    Header: "",
+    accessor: "link",
+    Cell: ({ row: { original } }) => (
+      <>
+        <Link href={`/${original.id}`}>
+          <Button>Stake</Button>
+        </Link>
+      </>
+    ),
+  },
 ];
 
 export const IncentivesTable: React.FC<IProps> = ({ data }) => {
