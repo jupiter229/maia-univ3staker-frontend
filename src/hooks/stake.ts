@@ -115,12 +115,6 @@ export const useWithdraw = (incentiveId: string) => {
       if (!write) throw "No staker";
       if (!account) throw "No account";
 
-      // const params = encodeFunctionData({
-      //   abi: UniswapV3StakerABI,
-      //   functionName: "withdrawToken",
-      //   args: [nftId.toString(), account, encodeIncentive(incentive)],
-      // });
-
       write({ args: [nftId.toString(), account, encodeIncentive(incentive)] });
       return isSuccess ? data : isLoading;
     },

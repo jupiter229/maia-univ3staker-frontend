@@ -52,7 +52,7 @@ export const useUserPositions = (poolId?: string) => {
           deposited: p.owner !== stakerPosition?.owner,
         };
       })
-      .filter((p: any) => p.pool.id == poolId);
+      .filter((p: any) => poolId === undefined ? true : p.pool.id === poolId);
     return positions as IPosition[];
   }, [data, poolId, stakerData]);
 
@@ -69,11 +69,13 @@ export const useUserStakedPositions = () => {
       .map((p: any) => {
         const id = p.stakedIncentives?.[0]?.incentive?.id;
         const incentive = incentives?.find((i: any) => i.id === id);
+
         if (!incentive) return;
         return { ...p, incentive };
       })
       .filter(Boolean) as IStakedPosition[];
     return result;
   }, [incentives, positions]);
+
   return [result, positionsLoading || incentivesLoading] as const;
 };
