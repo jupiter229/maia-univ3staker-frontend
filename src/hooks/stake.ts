@@ -106,7 +106,7 @@ export const useStake = (incentiveId: string) => {
 export const useWithdraw = (incentiveId: string) => {
   const { account, chainId } = useWeb3();
   const { data, isLoading, isSuccess, write } =
-    useStakerContractWriteMulticall(chainId);
+    useStakerContractWriteWithdraw(chainId);
   const [incentive] = useIncentive(incentiveId);
 
   const withdraw = useCallback(
@@ -115,13 +115,13 @@ export const useWithdraw = (incentiveId: string) => {
       if (!write) throw "No staker";
       if (!account) throw "No account";
 
-      const params = encodeFunctionData({
-        abi: UniswapV3StakerABI,
-        functionName: "withdrawToken",
-        args: [nftId.toString(), account, encodeIncentive(incentive)],
-      });
+      // const params = encodeFunctionData({
+      //   abi: UniswapV3StakerABI,
+      //   functionName: "withdrawToken",
+      //   args: [nftId.toString(), account, encodeIncentive(incentive)],
+      // });
 
-      write({ args: [params] });
+      write({ args: [nftId.toString(), account, encodeIncentive(incentive)] });
       return isSuccess ? data : isLoading;
     },
     [account, data, incentive, isLoading, isSuccess, write]
