@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { TICK_INCREMENT, YEAR } from "@/config/constants/const";
+import { TICK_WIDTH, YEAR } from "@/config/constants/const";
 import { IIncentive } from "@/types";
 import { formatBigInt, formatDateTime, formatUSD } from "@/utils";
 import Link from "next/link";
@@ -41,7 +41,7 @@ const columns = [
     accessor: "minWidth",
     Cell: ({ row: { original: row } }) => (
       <>
-        <p>±{row.minWidth * TICK_INCREMENT}%</p>
+        <p>±{row.minWidth * TICK_WIDTH}%</p>
         <p>
           {row.minWidth} {row.minWidth == 1 ? "Tick" : "Ticks"}
         </p>
