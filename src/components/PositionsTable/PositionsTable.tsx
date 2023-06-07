@@ -87,7 +87,13 @@ export const PositionsTable: React.FC<IProps> = ({
         Header: "Position Rewards",
         accessor: "rewards",
         Cell: ({ row: { original: row } }) => (
-          <>{formatBigInt(row.rewards, row.incentive.rewardToken.decimals)}</>
+          <>
+            {formatUSD(
+              row.rewards != undefined
+                ? formatBigInt(row.rewards, row.incentive.rewardToken.decimals)
+                : 0
+            )}
+          </>
         ),
       },
       {
