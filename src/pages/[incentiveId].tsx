@@ -11,8 +11,17 @@ const PositionsTable = dynamic(() => import("@/components/PositionsTable"), {
 });
 
 export const StakePage: NextPage<IProps> = ({ incentiveId }) => {
-  const [userPoolPositions] = useUserIncentivePositions(incentiveId);
-  return <PositionsTable data={userPoolPositions} incentiveId={incentiveId} />;
+  const {
+    incentive: incentive,
+    positions: [userPoolPositions],
+  } = useUserIncentivePositions(incentiveId);
+  return (
+    <PositionsTable
+      data={userPoolPositions}
+      incentiveId={incentiveId}
+      incentive={incentive}
+    />
+  );
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

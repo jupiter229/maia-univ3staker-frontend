@@ -16,7 +16,10 @@ const columns = [
     accessor: "pool",
     Cell: ({ value: pool, row: { original } }) => (
       <Link href={`/${original.id}`}>
-        {pool.token0.symbol}/{pool.token1.symbol}
+        <p>
+          {pool.token0.symbol}/{pool.token1.symbol}
+        </p>
+        <p>{pool.feeTier / 10000}% Fee</p>
       </Link>
     ),
   },

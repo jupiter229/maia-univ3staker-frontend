@@ -1,8 +1,8 @@
 import {
-    IPosition,
-    IStakedPosition,
-    useGetPositionsQuery,
-    useGetStakerPositionsQuery,
+  IPosition,
+  IStakedPosition,
+  useGetPositionsQuery,
+  useGetStakerPositionsQuery,
 } from "@/types";
 import { useMemo } from "react";
 import { useIncentive, useIncentives } from "./incentives";
@@ -13,7 +13,7 @@ export const useUserIncentivePositions = (incentiveId: string) => {
   const [positions, positionsLoading] = useUserPositions(
     incentive?.pool.id || ""
   );
-  return [positions, incentiveLoading || positionsLoading] as const;
+  return {incentive: incentive, positions: [positions, incentiveLoading || positionsLoading]} as const;
 };
 
 export const useUserPositions = (poolId?: string) => {

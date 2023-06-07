@@ -1,7 +1,13 @@
 // @ts-nocheck
+import { TICK_WIDTH, YEAR } from "@/config/constants/const";
 import { useWeb3 } from "@/hooks";
-import { IPosition } from "@/types";
-import { formatDateDiff, formatUSD } from "@/utils";
+import { IIncentive, IPosition } from "@/types";
+import {
+  formatBigInt,
+  formatDateDiff,
+  formatDateTime,
+  formatUSD,
+} from "@/utils";
 import Link from "next/link";
 import { useMemo } from "react";
 import { Button } from "../Button";
@@ -14,6 +20,7 @@ interface IProps {
   data?: IPosition[];
   hasExpired?: boolean;
   title?: string;
+  incentive?: IIncentive;
 }
 
 const staticColumns = [
@@ -31,6 +38,7 @@ const staticColumns = [
 export const PositionsTable: React.FC<IProps> = ({
   data,
   incentiveId,
+  incentive = null,
   title = "My Positions",
 }) => {
   const { account } = useWeb3();
@@ -67,25 +75,89 @@ export const PositionsTable: React.FC<IProps> = ({
   return (
     <div className="flex flex-col gap-4 justify-center items-center text-white w-full">
       {title && (
-        <h5 className="text-lg font-semibold px-6 w-full grid grid-cols-5">
-          {title}{" "}
-          <Link
-            target="_blank"
-            href={
-              data !== undefined && data.length > 0
-                ? "https://uni.maiadao.io/#/add/" +
+        <>
+          <h5 className="text-lg font-semibold px-6 w-full grid grid-cols-5">
+            {title}
+            {data !== undefined && data.length > 0 && (
+              <Link
+                target="_blank"
+                href={
+                  "https://uni.maiadao.io/#/add/" +
                   data[0].pool.token0.id +
                   "/" +
                   data[0].pool.token1.id +
                   "/" +
                   data[0].pool.feeTier
-                : "."
-            }
-            className="col-start-5"
-          >
-            <Button className="w-full">Add Liquidity</Button>
-          </Link>
-        </h5>
+                }
+                className="col-start-5"
+              >
+                <Button className="w-full">Add Liquidity</Button>
+              </Link>
+            )}
+          </h5>
+          <div className="bg-dark-hard rounded-xl p-4 text-white w-full divide-y divide-blue-200">
+            <div className="text-md font-semibold px-6 w-full grid grid-cols-5 mb-1">
+              {data !== undefined && data.length > 0 && (
+                <>
+                  <p>Pool</p>
+                  <p>Duration</p>
+                  <p>TVL</p>
+                  <p>Minimum Range</p>
+                  <p>Rewards APR</p>
+                </>
+              )}
+            </div>
+            <h5 className="text-md px-6 w-full grid grid-cols-5 pt-2">
+              {data !== undefined && data.length > 0 && (
+                <>
+                  <p>
+                    {data[0].pool.token0.symbol}/
+                    {data[0].pool.token1.symbol +
+                      " " +
+                      data[0].pool.feeTier / 10000}
+                    % Fee
+                  </p>
+                  <p>
+                    <p>{formatDateTime(incentive.startTime * 1000)}</p>
+                    <p>{formatDateTime(incentive.endTime * 1000)}</p>
+                  </p>
+                  <p>{formatUSD(data[0].pool.totalValueLockedUSD)}</p>
+                  <p>
+                    <p>±{incentive.minWidth * TICK_WIDTH}%</p>
+                    <p>
+                      {incentive.minWidth}{" "}
+                      {incentive.minWidth == 1 ? "Tick" : "Ticks"}
+                    </p>
+                  </p>
+                  <p>
+                    {(incentive.tokenPriceUSD > 0 &&
+                      incentive.fullRangeLiquidityUSD > 0 &&
+                      (
+                        ((formatBigInt(incentive.reward) *
+                          incentive.tokenPriceUSD) /
+                          incentive.fullRangeLiquidityUSD) *
+                        (YEAR / (incentive.endTime - incentive.startTime)) *
+                        100
+                      ).toFixed(2)) ||
+                      0}
+                    % -{" "}
+                    {(incentive?.tokenPriceUSD > 0 &&
+                      incentive.activeLiqudityUSD > 0 &&
+                      (
+                        ((formatBigInt(incentive.reward) *
+                          incentive?.tokenPriceUSD) /
+                          incentive.activeLiqudityUSD) *
+                        (YEAR / (incentive.endTime - incentive.startTime)) *
+                        100
+                      ).toFixed(2)) ||
+                      0}
+                    %
+                  </p>
+                </>
+              )}
+            </h5>
+          </div>
+        </>
       )}
       {account ? (
         <Table columns={columns} data={data || []} />

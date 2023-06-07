@@ -16,6 +16,10 @@ import { useGraphClient } from "./web3";
 export const useIncentive = (id: string) => {
   const client = useGraphClient();
 
+  const { data: ethPrice, loading: ethPriceLoading } = useGetEthPriceQuery({
+    variables: { filter: { id_in: ["1"] } },
+  });
+
   const { data, loading: incentiveLoading } = useGetIncentiveQuery({
     client,
     variables: { id },
@@ -34,13 +38,37 @@ export const useIncentive = (id: string) => {
   const result: IIncentive | undefined = useMemo(() => {
     const pool = poolsData?.pool;
     const rewardToken = rewardTokensData?.token;
+
+    let tokenPriceUSD =
+    rewardToken?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
+
+    const poolToken0PriceUSD = pool?.token0?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
+    const poolToken1PriceUSD = pool?.token1?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
+
+    let activeLiqudityUSD = getActiveLiquidityUSD(
+      pool?.liquidity,
+      pool?.tick,
+      pool?.feeTier,
+      pool?.token0?.decimals,
+      pool?.token1?.decimals,
+      poolToken0PriceUSD,
+      poolToken1PriceUSD
+    );
+
+    let fullRangeLiquidityUSD =
+      activeLiqudityUSD * positionEfficiency(pool?.feeTier, incentive?.minWidth ?? 0);
+
+
     if (!incentive || !pool || !rewardToken) return;
     return {
       ...incentive,
+      tokenPriceUSD,
+      activeLiqudityUSD,
+      fullRangeLiquidityUSD,
       pool,
       rewardToken,
     };
-  }, [incentive, poolsData?.pool, rewardTokensData?.token]);
+  }, [ethPrice?.bundles, incentive, poolsData?.pool, rewardTokensData?.token]);
   const loading = incentiveLoading || poolLoading || tokenLoading;
   return [result, loading] as const;
 };
