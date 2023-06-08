@@ -65,14 +65,12 @@ export const useIncentive = (id: string) => {
     const activeLiqudityUSD = convertBasedOnEfficiency(
       activeTickLiqudityUSD,
       pool?.feeTier,
-      incentive?.minWidth ?? 0,
-      0
+      incentive?.minWidth ?? 0
     );
 
     const fullRangeLiquidityUSD = convertBasedOnEfficiency(
       activeTickLiqudityUSD,
       pool?.feeTier,
-      incentive?.minWidth ?? 0,
       MAX_RANGE
     );
 
