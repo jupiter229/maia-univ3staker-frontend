@@ -7,10 +7,14 @@ import { useContractReads, useContractWrite } from "wagmi";
 import { useIncentive } from "./incentives";
 import { useWeb3 } from "./web3";
 
+const stakerContract = {
+  address: getAddress(Contracts.staker[1088]),
+  abi: UniswapV3StakerABI,
+};
+
 export const useStakerContractWriteMulticall = (chainId: number) => {
   return useContractWrite({
-    address: getAddress(Contracts.staker[1088]),
-    abi: UniswapV3StakerABI,
+    ...stakerContract,
     chainId: chainId,
     functionName: "multicall",
   });
@@ -18,8 +22,7 @@ export const useStakerContractWriteMulticall = (chainId: number) => {
 
 export const useStakerContractWriteStake = (chainId: number) => {
   return useContractWrite({
-    address: getAddress(Contracts.staker[1088]),
-    abi: UniswapV3StakerABI,
+    ...stakerContract,
     chainId: chainId,
     functionName: "stakeToken",
   });
@@ -27,8 +30,7 @@ export const useStakerContractWriteStake = (chainId: number) => {
 
 export const useStakerContractWriteWithdraw = (chainId: number) => {
   return useContractWrite({
-    address: getAddress(Contracts.staker[1088]),
-    abi: UniswapV3StakerABI,
+    ...stakerContract,
     chainId: chainId,
     functionName: "withdrawToken",
   });
@@ -36,8 +38,7 @@ export const useStakerContractWriteWithdraw = (chainId: number) => {
 
 // export const useStakerContractWriteClaimReward = (chainId: number) => {
 //   return useContractWrite({
-//     address: getAddress(Contracts.staker[1088]),
-//     abi: UniswapV3StakerABI,
+//   ...stakerContract,
 //     chainId: chainId,
 //     functionName: "claimReward",
 //   });
@@ -55,8 +56,7 @@ const usePositionManagerContractWriteSafeTransferFrom = (chainId: number) => {
 const getCallsGetRewardInfo = (args: { incentive: any; tokenId: number }[]) => {
   return args.map((arg) => {
     return {
-      address: getAddress(Contracts.staker[1088]),
-      abi: UniswapV3StakerABI,
+      ...stakerContract,
       functionName: "getRewardInfo",
       args: [arg.incentive, arg.tokenId],
     };
@@ -67,7 +67,8 @@ const useContractReadsGetRewardInfo = (
   args: { incentive: any; tokenId: number }[]
 ) => {
   return useContractReads({
-    contracts: getCallsGetRewardInfo(args),
+    contracts: getCallsGetRewardInfo(args) as any,
+    watch: true as any,
   });
 };
 
@@ -209,6 +210,12 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
 //   return { ...incentive?.rewardToken, rewards, claimRewards };
 // };
 
+type Reward = {
+  result: number[] | null;
+};
+
+type Data = Reward[];
+
 export const useIncentiveRewards = (
   args: { incentive: any; tokenId: number }[]
 ) => {
@@ -224,12 +231,12 @@ export const useIncentiveRewards = (
 
     return isLoading
       ? []
-      : data.map((rewards, i) => {
+      : (data as Data).map((rewards, i) => {
           return rewards.result === undefined || rewards.result === null
             ? 0
-            : rewards.result[0];
+            : Number(rewards.result[0]);
         });
   }, [args, data, isError, isLoading]);
 
-  return result as const;
+  return result;
 };
