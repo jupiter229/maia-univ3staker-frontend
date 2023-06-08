@@ -1,16 +1,20 @@
 import { Contracts, PositionManagerABI, UniswapV3StakerABI } from "@/config";
 import { Arrayable, Incentiveish } from "@/types";
 import { arrayify, encodeIncentive, getIncentiveStruct } from "@/utils";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { encodeFunctionData, getAddress } from "viem";
-import { useContractWrite } from "wagmi";
+import { useContractReads, useContractWrite } from "wagmi";
 import { useIncentive } from "./incentives";
 import { useWeb3 } from "./web3";
 
+const stakerContract = {
+  address: getAddress(Contracts.staker[1088]),
+  abi: UniswapV3StakerABI,
+};
+
 export const useStakerContractWriteMulticall = (chainId: number) => {
   return useContractWrite({
-    address: getAddress(Contracts.staker[1088]),
-    abi: UniswapV3StakerABI,
+    ...stakerContract,
     chainId: chainId,
     functionName: "multicall",
   });
@@ -18,8 +22,7 @@ export const useStakerContractWriteMulticall = (chainId: number) => {
 
 export const useStakerContractWriteStake = (chainId: number) => {
   return useContractWrite({
-    address: getAddress(Contracts.staker[1088]),
-    abi: UniswapV3StakerABI,
+    ...stakerContract,
     chainId: chainId,
     functionName: "stakeToken",
   });
@@ -27,8 +30,7 @@ export const useStakerContractWriteStake = (chainId: number) => {
 
 export const useStakerContractWriteWithdraw = (chainId: number) => {
   return useContractWrite({
-    address: getAddress(Contracts.staker[1088]),
-    abi: UniswapV3StakerABI,
+    ...stakerContract,
     chainId: chainId,
     functionName: "withdrawToken",
   });
@@ -36,8 +38,7 @@ export const useStakerContractWriteWithdraw = (chainId: number) => {
 
 // export const useStakerContractWriteClaimReward = (chainId: number) => {
 //   return useContractWrite({
-//     address: getAddress(Contracts.staker[1088]),
-//     abi: UniswapV3StakerABI,
+//   ...stakerContract,
 //     chainId: chainId,
 //     functionName: "claimReward",
 //   });
@@ -49,6 +50,25 @@ const usePositionManagerContractWriteSafeTransferFrom = (chainId: number) => {
     abi: PositionManagerABI,
     chainId: chainId,
     functionName: "safeTransferFrom",
+  });
+};
+
+const getCallsGetRewardInfo = (args: { incentive: any; tokenId: number }[]) => {
+  return args.map((arg) => {
+    return {
+      ...stakerContract,
+      functionName: "getRewardInfo",
+      args: [arg.incentive, arg.tokenId],
+    };
+  });
+};
+
+const useContractReadsGetRewardInfo = (
+  args: { incentive: any; tokenId: number }[]
+) => {
+  return useContractReads({
+    contracts: getCallsGetRewardInfo(args) as any,
+    watch: true as any,
   });
 };
 
@@ -189,3 +209,34 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
 
 //   return { ...incentive?.rewardToken, rewards, claimRewards };
 // };
+
+type Reward = {
+  result: number[] | null;
+};
+
+type Data = Reward[];
+
+export const useIncentiveRewards = (
+  args: { incentive: any; tokenId: number }[]
+) => {
+  const { data, isError, isLoading } = useContractReadsGetRewardInfo(
+    args.map((arg) => ({
+      incentive: getIncentiveStruct(arg.incentive),
+      tokenId: arg.tokenId,
+    }))
+  );
+
+  const result = useMemo(() => {
+    if (!args || isError || !data) return;
+
+    return isLoading
+      ? []
+      : (data as Data).map((rewards, i) => {
+          return rewards.result === undefined || rewards.result === null
+            ? 0
+            : Number(rewards.result[0]);
+        });
+  }, [args, data, isError, isLoading]);
+
+  return result;
+};

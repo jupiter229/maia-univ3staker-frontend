@@ -8,6 +8,7 @@ const PositionsTable = dynamic(() => import("@/components/PositionsTable"), {
 
 export const RewardsPage: NextPage = () => {
   const [data] = useUserStakedPositions();
+
   return <PositionsTable data={data} title="My Staked Positions" />;
 };
 
