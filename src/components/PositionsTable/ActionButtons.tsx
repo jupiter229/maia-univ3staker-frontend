@@ -1,4 +1,5 @@
 import {
+  useClaimRewards,
   useDepositStake,
   useIncentive,
   useStake,
@@ -31,14 +32,12 @@ export const ActionButtons: React.FC<IProps> = ({
     [id, incentive, position.stakedIncentives]
   );
   const onUnstake = useUnstake(unstakeInput);
+  const onClaim = useClaimRewards(unstakeInput);
   const onDepositStake = useDepositStake(incentiveId);
   const onStake = useStake(incentiveId);
   const onWithdraw = useWithdraw(incentiveId);
   const hasExpired = incentive?.endTime * 1000 <= Date.now();
-  // TODO: remove this when we have a way to check if a position is staked in an incentive
-  // const [isStakedInIncentive, isStakedInIncentiveLoading] =
-  //   useIsStakedInIncentive(position.id, incentiveId);
-  // const loading = isStakedInIncentiveLoading || incentiveLoading;
+
   const isStakedInIncentive = position.stakedIncentives.find(
     (i: any) => i.incentive?.id === incentiveId
   );
@@ -46,12 +45,20 @@ export const ActionButtons: React.FC<IProps> = ({
   return loading ? null : (
     <div className="flex justify-center gap-4">
       {isStakedInIncentive ? (
-        <Button
-          className="w-full max-w-[200px]"
-          onClick={() => onUnstake(position.id)}
-        >
-          Unstake & Claim
-        </Button>
+        <>
+          <Button
+            className="w-full max-w-[200px]"
+            onClick={() => onClaim(position.id)}
+          >
+            Claim
+          </Button>
+          <Button
+            className="w-full max-w-[200px]"
+            onClick={() => onUnstake(position.id)}
+          >
+            Unstake & Claim
+          </Button>
+        </>
       ) : position.deposited ? (
         <>
           {hasExpired || (

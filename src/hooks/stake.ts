@@ -185,6 +185,52 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
   return unstake;
 };
 
+export const useClaimRewards = (incentives: Arrayable<Incentiveish>) => {
+  const { account, chainId } = useWeb3();
+  const { data, isLoading, isSuccess, write } =
+    useStakerContractWriteMulticall(chainId);
+
+  const unstake = useCallback(
+    async (nftId: string | number) => {
+      if (!incentives || (Array.isArray(incentives) && !incentives))
+        throw "No incentive";
+      if (!write) throw "No staker";
+      if (!account) throw "No account";
+
+      const calls = arrayify(incentives)
+        .map((incentive) => {
+          const incentiveStruct = getIncentiveStruct(incentive);
+          const rewardToken = incentiveStruct.rewardToken;
+          return [
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "unstakeToken",
+              args: [incentiveStruct, nftId.toString()],
+            }),
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "stakeToken",
+              args: [incentiveStruct, nftId.toString()],
+            }),
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "claimReward",
+              args: [rewardToken, account, 0],
+            }),
+          ];
+        })
+        .flat();
+
+      write({ args: [calls] });
+
+      return isSuccess ? data : isLoading;
+    },
+    [account, data, incentives, isLoading, isSuccess, write]
+  );
+
+  return unstake;
+};
+
 // export const useIncentiveRewards = (incentiveId: string) => {
 //   const { account, chainId } = useWeb3();
 //   const { data, isLoading, isSuccess, write } =
