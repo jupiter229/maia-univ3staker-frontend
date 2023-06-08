@@ -86,10 +86,12 @@ export const useUserStakedPositions = () => {
     if (!positions) return;
     const result = positions
       .map((p: any) => {
+        if (!p.deposited) return;
         const id = p.stakedIncentives?.[0]?.incentive?.id;
         const incentive = incentives?.find((i: any) => i.id === id);
 
-        if (!incentive) return;
+        if (!incentive) return { ...p, incentive: undefined };
+
         return { ...p, incentive };
       })
       .filter(Boolean) as IStakedPosition[];

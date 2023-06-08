@@ -2,6 +2,7 @@ import { IIncentive, IPosition, Incentiveish } from "@/types";
 import { encodeAbiParameters, getAddress, parseAbiParameters } from "viem";
 
 export const getIncentiveStruct = (incentive: Incentiveish) => {
+  if (!incentive) return null;
   const { rewardToken, pool } = incentive;
   return {
     rewardToken: getAddress(

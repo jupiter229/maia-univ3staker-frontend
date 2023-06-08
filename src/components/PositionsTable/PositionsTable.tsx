@@ -77,32 +77,33 @@ export const PositionsTable: React.FC<IProps> = ({
       {
         Header: "Pending Rewards",
         accessor: "rewards",
-        Cell: ({ row: { original: row } }) => (
-          <>
-            <p>
-              {(!!row.incentiveRewards
-                ? formatBigInt(
-                    row.incentiveRewards,
-                    row.incentive.rewardToken.decimals
+        Cell: ({ row: { original: row } }) =>
+          !!row.incentive && (
+            <>
+              <p>
+                {(!!row.incentiveRewards
+                  ? formatBigInt(
+                      row.incentiveRewards,
+                      row.incentive.rewardToken.decimals
+                    )
+                  : 0) +
+                  " " +
+                  row.incentive.rewardToken.symbol}
+              </p>
+              <p>
+                {!!row.incentiveRewards && row.incentive.tokenPriceUSD >= 0 ? (
+                  formatUSD(
+                    formatBigInt(
+                      row.incentiveRewards,
+                      row.incentive.rewardToken.decimals
+                    ) * row.incentive.tokenPriceUSD
                   )
-                : 0) +
-                " " +
-                row.incentive.rewardToken.symbol}
-            </p>
-            <p>
-              {!!row.incentiveRewards || row.incentive.tokenPriceUSD == 0 ? (
-                formatUSD(
-                  formatBigInt(
-                    row.incentiveRewards,
-                    row.incentive.rewardToken.decimals
-                  ) * row.incentive.tokenPriceUSD
-                )
-              ) : (
-                <></>
-              )}
-            </p>
-          </>
-        ),
+                ) : (
+                  <></>
+                )}
+              </p>
+            </>
+          ),
       },
       {
         Header: "Manage Liquidity",
