@@ -13,11 +13,10 @@ module.exports = {
         dark: {
           light: "#121A2A",
           medium: "#121625",
-          hard:"#0d111c"
-        }
-      }
+          hard: "#0d111c",
+        },
+      },
     },
   },
   plugins: [],
-}
-
+};

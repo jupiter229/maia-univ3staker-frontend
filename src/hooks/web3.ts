@@ -5,9 +5,12 @@ import {
   graphqlClient,
 } from "@/config";
 import { Address, ChainID, ChainProperty } from "@/types";
-import { Contract, ContractInterface } from "ethers";
-import { useMemo } from "react";
-import { useAccount, useNetwork, useProvider, useSigner } from "wagmi";
+import {
+  useAccount,
+  useNetwork,
+  usePublicClient,
+  useWalletClient,
+} from "wagmi";
 
 export const useChain = () => {
   const { chain = DEFAULT_CHAIN } = useNetwork();
@@ -55,19 +58,7 @@ export const useAddress = (addr?: Address | string) => {
 };
 
 export const useSignerOrProvider = () => {
-  const signer = useSigner();
-  const provider = useProvider();
-  return signer?.data ?? provider;
-};
-
-export const useContract = <T extends Contract = Contract>(
-  addr?: string | Address,
-  ABI?: ContractInterface
-) => {
-  const address = useAddress(addr);
-  const signerOrProvider = useSignerOrProvider();
-  return useMemo(() => {
-    if (!address || !ABI) return null;
-    return new Contract(address, ABI, signerOrProvider) as T;
-  }, [ABI, address, signerOrProvider]);
+  const signer = usePublicClient();
+  const provider = useWalletClient();
+  return signer ?? provider;
 };

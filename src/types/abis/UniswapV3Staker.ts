@@ -34,7 +34,6 @@ export declare namespace IUniswapV3Staker {
     pool: PromiseOrValue<string>;
     startTime: PromiseOrValue<BigNumberish>;
     endTime: PromiseOrValue<BigNumberish>;
-    minWidth: PromiseOrValue<BigNumberish>;
     refundee: PromiseOrValue<string>;
   };
 
@@ -43,14 +42,12 @@ export declare namespace IUniswapV3Staker {
     string,
     BigNumber,
     BigNumber,
-    number,
     string
   ] & {
     rewardToken: string;
     pool: string;
     startTime: BigNumber;
     endTime: BigNumber;
-    minWidth: number;
     refundee: string;
   };
 }
@@ -58,22 +55,24 @@ export declare namespace IUniswapV3Staker {
 export interface UniswapV3StakerInterface extends utils.Interface {
   functions: {
     "claimReward(address,address,uint256)": FunctionFragment;
-    "createIncentive((address,address,uint256,uint256,int24,address),uint256)": FunctionFragment;
+    "createIncentive((address,address,uint256,uint256,address),uint256,int24)": FunctionFragment;
     "deposits(uint256)": FunctionFragment;
-    "endIncentive((address,address,uint256,uint256,int24,address))": FunctionFragment;
+    "endIncentive((address,address,uint256,uint256,address))": FunctionFragment;
     "factory()": FunctionFragment;
-    "getRewardInfo((address,address,uint256,uint256,int24,address),uint256)": FunctionFragment;
+    "getRewardInfo((address,address,uint256,uint256,address),uint256)": FunctionFragment;
     "incentives(bytes32)": FunctionFragment;
     "maxIncentiveDuration()": FunctionFragment;
     "maxIncentiveStartLeadTime()": FunctionFragment;
+    "minWidths(bytes32)": FunctionFragment;
     "multicall(bytes[])": FunctionFragment;
     "nonfungiblePositionManager()": FunctionFragment;
     "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
     "rewards(address,address)": FunctionFragment;
-    "stakeToken((address,address,uint256,uint256,int24,address),uint256)": FunctionFragment;
+    "setMinimumWidth((address,address,uint256,uint256,address),int24)": FunctionFragment;
+    "stakeToken((address,address,uint256,uint256,address),uint256)": FunctionFragment;
     "stakes(uint256,bytes32)": FunctionFragment;
     "transferDeposit(uint256,address)": FunctionFragment;
-    "unstakeToken((address,address,uint256,uint256,int24,address),uint256)": FunctionFragment;
+    "unstakeToken((address,address,uint256,uint256,address),uint256)": FunctionFragment;
     "withdrawToken(uint256,address,bytes)": FunctionFragment;
   };
 
@@ -88,10 +87,12 @@ export interface UniswapV3StakerInterface extends utils.Interface {
       | "incentives"
       | "maxIncentiveDuration"
       | "maxIncentiveStartLeadTime"
+      | "minWidths"
       | "multicall"
       | "nonfungiblePositionManager"
       | "onERC721Received"
       | "rewards"
+      | "setMinimumWidth"
       | "stakeToken"
       | "stakes"
       | "transferDeposit"
@@ -109,7 +110,11 @@ export interface UniswapV3StakerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createIncentive",
-    values: [IUniswapV3Staker.IncentiveKeyStruct, PromiseOrValue<BigNumberish>]
+    values: [
+      IUniswapV3Staker.IncentiveKeyStruct,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "deposits",
@@ -137,6 +142,10 @@ export interface UniswapV3StakerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "minWidths",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "multicall",
     values: [PromiseOrValue<BytesLike>[]]
   ): string;
@@ -156,6 +165,10 @@ export interface UniswapV3StakerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "rewards",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMinimumWidth",
+    values: [IUniswapV3Staker.IncentiveKeyStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "stakeToken",
@@ -209,6 +222,7 @@ export interface UniswapV3StakerInterface extends utils.Interface {
     functionFragment: "maxIncentiveStartLeadTime",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "minWidths", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "multicall", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nonfungiblePositionManager",
@@ -219,6 +233,10 @@ export interface UniswapV3StakerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "rewards", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setMinimumWidth",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "stakeToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stakes", data: BytesLike): Result;
   decodeFunctionResult(
@@ -236,11 +254,12 @@ export interface UniswapV3StakerInterface extends utils.Interface {
 
   events: {
     "DepositTransferred(uint256,address,address)": EventFragment;
-    "IncentiveCreated(address,address,uint256,uint256,int24,address,uint256)": EventFragment;
+    "IncentiveCreated(address,address,uint256,uint256,address,int24,uint256)": EventFragment;
     "IncentiveEnded(bytes32,uint256)": EventFragment;
     "RewardClaimed(address,uint256)": EventFragment;
     "TokenStaked(uint256,bytes32,uint128)": EventFragment;
     "TokenUnstaked(uint256,bytes32)": EventFragment;
+    "UpdatedMinimumWidth(bytes32,int24)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DepositTransferred"): EventFragment;
@@ -249,6 +268,7 @@ export interface UniswapV3StakerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RewardClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenStaked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenUnstaked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpdatedMinimumWidth"): EventFragment;
 }
 
 export interface DepositTransferredEventObject {
@@ -269,12 +289,12 @@ export interface IncentiveCreatedEventObject {
   pool: string;
   startTime: BigNumber;
   endTime: BigNumber;
-  minWidth: number;
   refundee: string;
+  minWidth: number;
   reward: BigNumber;
 }
 export type IncentiveCreatedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, number, string, BigNumber],
+  [string, string, BigNumber, BigNumber, string, number, BigNumber],
   IncentiveCreatedEventObject
 >;
 
@@ -326,6 +346,18 @@ export type TokenUnstakedEvent = TypedEvent<
 
 export type TokenUnstakedEventFilter = TypedEventFilter<TokenUnstakedEvent>;
 
+export interface UpdatedMinimumWidthEventObject {
+  incentiveId: string;
+  minWidth: number;
+}
+export type UpdatedMinimumWidthEvent = TypedEvent<
+  [string, number],
+  UpdatedMinimumWidthEventObject
+>;
+
+export type UpdatedMinimumWidthEventFilter =
+  TypedEventFilter<UpdatedMinimumWidthEvent>;
+
 export interface UniswapV3Staker extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -363,6 +395,7 @@ export interface UniswapV3Staker extends BaseContract {
     createIncentive(
       key: IUniswapV3Staker.IncentiveKeyStruct,
       reward: PromiseOrValue<BigNumberish>,
+      minimumWidth: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -411,6 +444,11 @@ export interface UniswapV3Staker extends BaseContract {
 
     maxIncentiveStartLeadTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    minWidths(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
+
     multicall(
       data: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -431,6 +469,12 @@ export interface UniswapV3Staker extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    setMinimumWidth(
+      key: IUniswapV3Staker.IncentiveKeyStruct,
+      minimumWidth: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     stakeToken(
       key: IUniswapV3Staker.IncentiveKeyStruct,
@@ -479,6 +523,7 @@ export interface UniswapV3Staker extends BaseContract {
   createIncentive(
     key: IUniswapV3Staker.IncentiveKeyStruct,
     reward: PromiseOrValue<BigNumberish>,
+    minimumWidth: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -524,6 +569,11 @@ export interface UniswapV3Staker extends BaseContract {
 
   maxIncentiveStartLeadTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+  minWidths(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<number>;
+
   multicall(
     data: PromiseOrValue<BytesLike>[],
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -544,6 +594,12 @@ export interface UniswapV3Staker extends BaseContract {
     arg1: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  setMinimumWidth(
+    key: IUniswapV3Staker.IncentiveKeyStruct,
+    minimumWidth: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   stakeToken(
     key: IUniswapV3Staker.IncentiveKeyStruct,
@@ -592,6 +648,7 @@ export interface UniswapV3Staker extends BaseContract {
     createIncentive(
       key: IUniswapV3Staker.IncentiveKeyStruct,
       reward: PromiseOrValue<BigNumberish>,
+      minimumWidth: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -640,6 +697,11 @@ export interface UniswapV3Staker extends BaseContract {
 
     maxIncentiveStartLeadTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+    minWidths(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
     multicall(
       data: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
@@ -660,6 +722,12 @@ export interface UniswapV3Staker extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    setMinimumWidth(
+      key: IUniswapV3Staker.IncentiveKeyStruct,
+      minimumWidth: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     stakeToken(
       key: IUniswapV3Staker.IncentiveKeyStruct,
@@ -710,13 +778,13 @@ export interface UniswapV3Staker extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): DepositTransferredEventFilter;
 
-    "IncentiveCreated(address,address,uint256,uint256,int24,address,uint256)"(
+    "IncentiveCreated(address,address,uint256,uint256,address,int24,uint256)"(
       rewardToken?: PromiseOrValue<string> | null,
       pool?: PromiseOrValue<string> | null,
       startTime?: null,
       endTime?: null,
-      minWidth?: null,
       refundee?: null,
+      minWidth?: null,
       reward?: null
     ): IncentiveCreatedEventFilter;
     IncentiveCreated(
@@ -724,8 +792,8 @@ export interface UniswapV3Staker extends BaseContract {
       pool?: PromiseOrValue<string> | null,
       startTime?: null,
       endTime?: null,
-      minWidth?: null,
       refundee?: null,
+      minWidth?: null,
       reward?: null
     ): IncentiveCreatedEventFilter;
 
@@ -766,6 +834,15 @@ export interface UniswapV3Staker extends BaseContract {
       tokenId?: PromiseOrValue<BigNumberish> | null,
       incentiveId?: PromiseOrValue<BytesLike> | null
     ): TokenUnstakedEventFilter;
+
+    "UpdatedMinimumWidth(bytes32,int24)"(
+      incentiveId?: PromiseOrValue<BytesLike> | null,
+      minWidth?: null
+    ): UpdatedMinimumWidthEventFilter;
+    UpdatedMinimumWidth(
+      incentiveId?: PromiseOrValue<BytesLike> | null,
+      minWidth?: null
+    ): UpdatedMinimumWidthEventFilter;
   };
 
   estimateGas: {
@@ -779,6 +856,7 @@ export interface UniswapV3Staker extends BaseContract {
     createIncentive(
       key: IUniswapV3Staker.IncentiveKeyStruct,
       reward: PromiseOrValue<BigNumberish>,
+      minimumWidth: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -809,6 +887,11 @@ export interface UniswapV3Staker extends BaseContract {
 
     maxIncentiveStartLeadTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+    minWidths(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     multicall(
       data: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -828,6 +911,12 @@ export interface UniswapV3Staker extends BaseContract {
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setMinimumWidth(
+      key: IUniswapV3Staker.IncentiveKeyStruct,
+      minimumWidth: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     stakeToken(
@@ -873,6 +962,7 @@ export interface UniswapV3Staker extends BaseContract {
     createIncentive(
       key: IUniswapV3Staker.IncentiveKeyStruct,
       reward: PromiseOrValue<BigNumberish>,
+      minimumWidth: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -907,6 +997,11 @@ export interface UniswapV3Staker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    minWidths(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     multicall(
       data: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -928,6 +1023,12 @@ export interface UniswapV3Staker extends BaseContract {
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setMinimumWidth(
+      key: IUniswapV3Staker.IncentiveKeyStruct,
+      minimumWidth: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     stakeToken(

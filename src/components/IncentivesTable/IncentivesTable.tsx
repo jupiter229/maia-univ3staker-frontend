@@ -1,8 +1,9 @@
 // @ts-nocheck
+import { TICK_WIDTH, YEAR } from "@/config/constants/const";
 import { IIncentive } from "@/types";
-import { formatBigNumber, formatDateTime, formatUSD } from "@/utils";
-import { BigNumber } from "ethers";
+import { formatBigInt, formatDateTime, formatUSD } from "@/utils";
 import Link from "next/link";
+import { Button } from "../Button";
 import { Table } from "../Table";
 
 interface IProps {
@@ -15,7 +16,10 @@ const columns = [
     accessor: "pool",
     Cell: ({ value: pool, row: { original } }) => (
       <Link href={`/${original.id}`}>
-        {pool.token0.symbol}/{pool.token1.symbol}
+        <p>
+          {pool.token0.symbol}/{pool.token1.symbol}
+        </p>
+        <p>{pool.feeTier / 10000}% Fee</p>
       </Link>
     ),
   },
@@ -36,29 +40,86 @@ const columns = [
       formatUSD(row.pool.totalValueLockedUSD),
   },
   {
-    Header: "MinWidth",
+    Header: "Minimum Range",
     accessor: "minWidth",
+    Cell: ({ row: { original: row } }) => (
+      <>
+        <p>±{row.minWidth * TICK_WIDTH}%</p>
+        <p>
+          {row.minWidth} {row.minWidth == 1 ? "Tick" : "Ticks"}
+        </p>
+      </>
+    ),
   },
   {
-    Header: "Reward Token",
-    accessor: "reward",
-    Cell: ({ row: { original: row } }) => row.rewardToken.symbol,
-  },
-  {
-    Header: "Total Reward",
-    accessor: "totalReward",
+    Header: "Total Rewards And Fees",
+    accessor: "totalRewards",
     Cell: ({ row: { original: row } }) => (
       <>
         <p>
-          {formatBigNumber(row.reward)} {row.rewardToken.symbol}
+          {formatBigInt(row.reward, {
+            decimals: row.rewardToken.decimals,
+            precision: 2,
+          })}{" "}
+          {row.rewardToken.symbol}
         </p>
+        <p>{formatUSD(row.poolDayData.feesUSD * 0.9)} fees previous 24H</p>
+      </>
+    ),
+  },
+  {
+    Header: "Reward APR",
+    accessor: "rewardapr",
+    Cell: ({ row: { original: row } }) => (
+      <>
         <p>
-          {formatUSD(
-            BigNumber.from(row.reward)
-              .mul(row.rewardToken.volumeUSD)
-              .div(BigNumber.from(row.rewardToken.volume).add(1))
-              .toNumber()
-          )}
+          {(row.tokenPriceUSD > 0 &&
+            row.fullRangeLiquidityUSD > 0 &&
+            (
+              ((formatBigInt(row.reward) * row.tokenPriceUSD) /
+                row.fullRangeLiquidityUSD) *
+              (YEAR / (row.endTime - row.startTime)) *
+              100
+            ).toFixed(2)) ||
+            0}
+          % -{" "}
+          {(row.tokenPriceUSD > 0 &&
+            row.activeLiqudityUSD > 0 &&
+            (
+              ((formatBigInt(row.reward) * row.tokenPriceUSD) /
+                row.activeLiqudityUSD) *
+              (YEAR / (row.endTime - row.startTime)) *
+              100
+            ).toFixed(2)) ||
+            0}
+          %
+        </p>
+      </>
+    ),
+  },
+  {
+    Header: "Fee APR",
+    accessor: "feeapr",
+    Cell: ({ row: { original: row } }) => (
+      <>
+        <p>
+          {(row.poolDayData.feesUSD > 0 &&
+            row.fullRangeLiquidityUSD > 0 &&
+            (
+              ((row.poolDayData.feesUSD * 0.9 * 365) /
+                row.fullRangeLiquidityUSD) *
+              100
+            ).toFixed(2)) ||
+            0}
+          % -{" "}
+          {(row.poolDayData.feesUSD > 0 &&
+            row.activeLiqudityUSD > 0 &&
+            (
+              ((row.poolDayData.feesUSD * 0.9 * 365) / row.activeLiqudityUSD) *
+              100
+            ).toFixed(2)) ||
+            0}
+          %
         </p>
       </>
     ),
@@ -76,6 +137,15 @@ const columns = [
       }
       return "Active";
     },
+  },
+  {
+    Header: "",
+    accessor: "link",
+    Cell: ({ row: { original } }) => (
+      <Link href={`/${original.id}`}>
+        <Button>Stake</Button>
+      </Link>
+    ),
   },
 ];
 

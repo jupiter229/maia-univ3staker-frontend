@@ -5,6 +5,7 @@ fragment TokenFields on Token {
   symbol
   volume
   volumeUSD
+  derivedETH
 }
 
 query GetToken($id: ID!) {
@@ -28,6 +29,11 @@ fragment PoolFields on Pool {
     ...TokenFields
   }
   totalValueLockedUSD
+  feeTier
+  liquidity
+  totalLiquidity
+  sqrtPrice
+  tick
 }
 
 query GetPool($id: ID!) {
@@ -51,6 +57,12 @@ fragment TransactionFields on Transaction {
 fragment PositionFields on Position {
   id
   liquidity
+  tickUpper {
+    tickIdx
+  }
+  tickLower {
+    tickIdx
+  }
   pool {
     ...PoolFields
   }
@@ -65,5 +77,25 @@ fragment PositionFields on Position {
 query GetPositions($where: Position_filter) {
   positions(where: $where) {
     ...PositionFields
+  }
+}
+
+query GetPoolDayData($filter: PoolDayData_filter) {
+  poolDayDatas(where: $filter) {
+    ...PoolDayDataFields
+  }
+}
+
+fragment PoolDayDataFields on PoolDayData {
+  pool {
+    id
+  }
+  date
+  feesUSD
+}
+
+query GetEthPrice($filter: Bundle_filter) {
+  bundles(where: $filter) {
+    ethPriceUSD
   }
 }

@@ -90,15 +90,15 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "int24",
-        name: "minWidth",
-        type: "int24",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "refundee",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "int24",
+        name: "minWidth",
+        type: "int24",
       },
       {
         indexed: false,
@@ -193,6 +193,25 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "incentiveId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "int24",
+        name: "minWidth",
+        type: "int24",
+      },
+    ],
+    name: "UpdatedMinimumWidth",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "contract IERC20Minimal",
@@ -246,11 +265,6 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "int24",
-            name: "minWidth",
-            type: "int24",
-          },
-          {
             internalType: "address",
             name: "refundee",
             type: "address",
@@ -264,6 +278,11 @@ const _abi = [
         internalType: "uint256",
         name: "reward",
         type: "uint256",
+      },
+      {
+        internalType: "int24",
+        name: "minimumWidth",
+        type: "int24",
       },
     ],
     name: "createIncentive",
@@ -330,11 +349,6 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "int24",
-            name: "minWidth",
-            type: "int24",
-          },
-          {
             internalType: "address",
             name: "refundee",
             type: "address",
@@ -392,11 +406,6 @@ const _abi = [
             internalType: "uint256",
             name: "endTime",
             type: "uint256",
-          },
-          {
-            internalType: "int24",
-            name: "minWidth",
-            type: "int24",
           },
           {
             internalType: "address",
@@ -480,6 +489,25 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    name: "minWidths",
+    outputs: [
+      {
+        internalType: "int24",
+        name: "",
+        type: "int24",
       },
     ],
     stateMutability: "view",
@@ -600,9 +628,49 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "int24",
-            name: "minWidth",
-            type: "int24",
+            internalType: "address",
+            name: "refundee",
+            type: "address",
+          },
+        ],
+        internalType: "struct IUniswapV3Staker.IncentiveKey",
+        name: "key",
+        type: "tuple",
+      },
+      {
+        internalType: "int24",
+        name: "minimumWidth",
+        type: "int24",
+      },
+    ],
+    name: "setMinimumWidth",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "contract IERC20Minimal",
+            name: "rewardToken",
+            type: "address",
+          },
+          {
+            internalType: "contract IUniswapV3Pool",
+            name: "pool",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "startTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "endTime",
+            type: "uint256",
           },
           {
             internalType: "address",
@@ -695,11 +763,6 @@ const _abi = [
             internalType: "uint256",
             name: "endTime",
             type: "uint256",
-          },
-          {
-            internalType: "int24",
-            name: "minWidth",
-            type: "int24",
           },
           {
             internalType: "address",

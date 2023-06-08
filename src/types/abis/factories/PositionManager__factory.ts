@@ -829,6 +829,11 @@ const _abi = [
         name: "tokenId",
         type: "uint256",
       },
+      {
+        internalType: "bytes",
+        name: "_data",
+        type: "bytes",
+      },
     ],
     name: "safeTransferFrom",
     outputs: [],
@@ -851,11 +856,6 @@ const _abi = [
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "_data",
-        type: "bytes",
       },
     ],
     name: "safeTransferFrom",

@@ -6,6 +6,7 @@ import {
 } from "@/types";
 import { useMemo } from "react";
 import { useIncentive, useIncentives } from "./incentives";
+import { useIncentiveRewards } from "./stake";
 import { useGraphClient, useWeb3 } from "./web3";
 
 export const useUserIncentivePositions = (incentiveId: string) => {
@@ -13,7 +14,25 @@ export const useUserIncentivePositions = (incentiveId: string) => {
   const [positions, positionsLoading] = useUserPositions(
     incentive?.pool.id || ""
   );
-  return [positions, incentiveLoading || positionsLoading] as const;
+
+  const incentiveRewards = useIncentiveRewards(
+    positions?.map((p) => ({
+      incentive: incentive,
+      tokenId: p.tokenId,
+    })) ?? []
+  );
+
+  return {
+    positions: [
+      positions?.map((p, i) => ({
+        ...p,
+        incentiveRewards:
+          incentiveRewards !== undefined ? incentiveRewards[i] : 0,
+        incentive,
+      })),
+      incentiveLoading || positionsLoading,
+    ],
+  } as const;
 };
 
 export const useUserPositions = (poolId?: string) => {
@@ -24,7 +43,7 @@ export const useUserPositions = (poolId?: string) => {
       variables: { where: { owner: address || "" } },
       client,
     });
-  const id_in = stakerData?.positions.map((p) => p.tokenId) || [];
+  const id_in = stakerData?.positions.map((p: any) => p.tokenId) || [];
   const { data, loading } = useGetPositionsQuery({
     variables: {
       where: {
@@ -40,18 +59,22 @@ export const useUserPositions = (poolId?: string) => {
   });
   const result = useMemo(() => {
     if (!data || !stakerData) return;
-    const positions = data.positions.map((p) => {
-      const stakerPosition = stakerData.positions.find(
-        (sp) => sp.tokenId === p.id
-      );
-      return {
-        ...stakerPosition,
-        ...p,
-        deposited: p.owner !== stakerPosition?.owner,
-      };
-    });
+    const positions = data.positions
+      .map((p: any) => {
+        const stakerPosition = stakerData.positions.find(
+          (sp) => sp.tokenId === p.id
+        );
+
+        return {
+          ...stakerPosition,
+          ...p,
+          deposited: p.owner !== stakerPosition?.owner,
+        };
+      })
+      .filter((p: any) => (poolId === undefined ? true : p.pool.id === poolId));
     return positions as IPosition[];
-  }, [data, stakerData]);
+  }, [data, poolId, stakerData]);
+
   return [result, loading || stakerLoading] as const;
 };
 
@@ -59,36 +82,32 @@ export const useUserStakedPositions = () => {
   const [positions, positionsLoading] = useUserPositions();
   const [incentives, incentivesLoading] = useIncentives();
 
-  // TODO: remove this when we have a way to get staked positions from the graph
-  // const staker = useStakerContract();
-  // const [result, setResult] = useState<IStakedPosition[]>();
-  // useEffect(() => {
-  //   if (!incentives || !positions || !staker) return;
-  //   const promises = positions.map(async (p) => {
-  //     const incentive = await findAsync(incentives, async (i) => {
-  //       const { liquidity } = await staker.stakes(p.id, i.id);
-  //       return liquidity.gt(0);
-  //     });
-  //     if (!incentive) return;
-  //     return { ...p, incentive };
-  //   });
-  //   Promise.all(promises).then((result) =>
-  //     setResult(result.filter(Boolean) as IStakedPosition[])
-  //   );
-  // }, [incentives, positions, staker]);
-  // return [result, incentivesLoading || positionsLoading || !result] as const;
-
   const result = useMemo(() => {
     if (!positions) return;
     const result = positions
-      .map((p) => {
+      .map((p: any) => {
         const id = p.stakedIncentives?.[0]?.incentive?.id;
-        const incentive = incentives?.find((i) => i.id === id);
+        const incentive = incentives?.find((i: any) => i.id === id);
+
         if (!incentive) return;
         return { ...p, incentive };
       })
       .filter(Boolean) as IStakedPosition[];
     return result;
   }, [incentives, positions]);
-  return [result, positionsLoading || incentivesLoading] as const;
+
+  const incentiveRewards = useIncentiveRewards(
+    result?.map((p) => ({
+      incentive: p.incentive,
+      tokenId: p.tokenId,
+    })) ?? []
+  );
+
+  return [
+    result?.map((p, i) => ({
+      ...p,
+      incentiveRewards: incentiveRewards != undefined ? incentiveRewards[i] : 0,
+    })),
+    positionsLoading || incentivesLoading,
+  ] as const;
 };

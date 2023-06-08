@@ -1,28 +1,30 @@
 import { IIncentive, IPosition, Incentiveish } from "@/types";
-import { defaultAbiCoder } from "ethers/lib/utils.js";
+import { encodeAbiParameters, getAddress, parseAbiParameters } from "viem";
 
 export const getIncentiveStruct = (incentive: Incentiveish) => {
   const { rewardToken, pool } = incentive;
   return {
-    rewardToken: typeof rewardToken === "string" ? rewardToken : rewardToken.id,
-    pool: typeof pool === "string" ? pool : pool.id,
+    rewardToken: getAddress(
+      typeof rewardToken === "string" ? rewardToken : rewardToken.id
+    ),
+    pool: getAddress(typeof pool === "string" ? pool : pool.id),
     startTime: incentive.startTime,
     endTime: incentive.endTime,
-    minWidth: incentive.minWidth,
-    refundee: incentive.refundee,
+    refundee: getAddress(incentive.refundee),
   };
 };
 
 export const encodeIncentive = (incentive: IIncentive) => {
-  return defaultAbiCoder.encode(
-    ["address", "address", "uint256", "uint256", "int24", "address"],
+  return encodeAbiParameters(
+    parseAbiParameters(
+      "address rewardToken, address pool, uint256 startTime, uint256 endTime, address refundee"
+    ),
     [
-      incentive.rewardToken.id,
-      incentive.pool.id,
+      getAddress(incentive.rewardToken.id),
+      getAddress(incentive.pool.id),
       incentive.startTime,
       incentive.endTime,
-      incentive.minWidth,
-      incentive.refundee,
+      getAddress(incentive.refundee),
     ]
   );
 };

@@ -1,24 +1,26 @@
 import { ChainID, CHAINS } from "@/types";
 import { getDefaultWallets } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, goerli } from "wagmi";
+import { configureChains, createConfig } from "wagmi";
+import { metis } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
-const { provider, webSocketProvider } = configureChains(CHAINS, [
-  publicProvider(),
-]);
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  CHAINS,
+  [publicProvider()]
+);
 
 const { connectors } = getDefaultWallets({
   appName: "",
   // projectId: "YOUR_PROJECT_ID",
-  chains: CHAINS,
+  chains: chains,
 });
 
-export const wagmiClient = createClient({
+export const wagmiClient = createConfig({
   autoConnect: true,
-  provider,
-  webSocketProvider,
+  publicClient,
+  webSocketPublicClient,
   connectors,
 });
 
-export const DEFAULT_CHAIN_ID = ChainID.GOERLI;
-export const DEFAULT_CHAIN = goerli;
+export const DEFAULT_CHAIN_ID = ChainID.METIS;
+export const DEFAULT_CHAIN = metis;

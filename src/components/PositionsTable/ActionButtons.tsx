@@ -26,7 +26,7 @@ export const ActionButtons: React.FC<IProps> = ({
       id && incentive
         ? incentive
         : (position.stakedIncentives
-            .map((i) => i.incentive)
+            .map((i: any) => i.incentive)
             .filter(Boolean) as Incentiveish[]),
     [id, incentive, position.stakedIncentives]
   );
@@ -40,7 +40,7 @@ export const ActionButtons: React.FC<IProps> = ({
   //   useIsStakedInIncentive(position.id, incentiveId);
   // const loading = isStakedInIncentiveLoading || incentiveLoading;
   const isStakedInIncentive = position.stakedIncentives.find(
-    (i) => i.incentive?.id === incentiveId
+    (i: any) => i.incentive?.id === incentiveId
   );
   const loading = incentiveLoading;
   return loading ? null : (
