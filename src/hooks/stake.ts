@@ -158,7 +158,7 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
       const calls = arrayify(incentives)
         .map((incentive) => {
           const incentiveStruct = getIncentiveStruct(incentive);
-          const rewardToken = incentiveStruct.rewardToken;
+          const rewardToken = incentiveStruct?.rewardToken;
           return [
             encodeFunctionData({
               abi: UniswapV3StakerABI,
@@ -199,7 +199,7 @@ export const useClaimRewards = (incentives: Arrayable<Incentiveish>) => {
       const calls = arrayify(incentives)
         .map((incentive) => {
           const incentiveStruct = getIncentiveStruct(incentive);
-          const rewardToken = incentiveStruct.rewardToken;
+          const rewardToken = incentiveStruct?.rewardToken;
           return [
             encodeFunctionData({
               abi: UniswapV3StakerABI,
