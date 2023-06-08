@@ -1,3 +1,4 @@
+import { MAX_RANGE } from "@/config/constants/const";
 import {
   IIncentive,
   useGetEthPriceQuery,
@@ -9,7 +10,10 @@ import {
   useGetTokenQuery,
   useGetTokensQuery,
 } from "@/types";
-import { getActiveLiquidityUSD, positionEfficiency } from "@/utils/tvl";
+import {
+  convertBasedOnEfficiency,
+  getAmountsCurrentTickUSD,
+} from "@/utils/tvl";
 import { useMemo } from "react";
 import { useGraphClient } from "./web3";
 
@@ -39,7 +43,7 @@ export const useIncentive = (id: string) => {
     const pool = poolsData?.pool;
     const rewardToken = rewardTokensData?.token;
 
-    let tokenPriceUSD =
+    const tokenPriceUSD =
       rewardToken?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
 
     const poolToken0PriceUSD =
@@ -47,20 +51,30 @@ export const useIncentive = (id: string) => {
     const poolToken1PriceUSD =
       pool?.token1?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
 
-    let activeLiqudityUSD = getActiveLiquidityUSD(
-      pool?.liquidity,
+    const activeTickLiqudityUSD = getAmountsCurrentTickUSD(
+      pool?.sqrtPrice,
       pool?.tick,
+      pool?.liquidity,
       pool?.feeTier,
-      incentive?.minWidth ?? 0,
       pool?.token0?.decimals,
       pool?.token1?.decimals,
       poolToken0PriceUSD,
       poolToken1PriceUSD
     );
 
-    let fullRangeLiquidityUSD =
-      activeLiqudityUSD *
-      positionEfficiency(pool?.feeTier, incentive?.minWidth ?? 0);
+    const activeLiqudityUSD = convertBasedOnEfficiency(
+      activeTickLiqudityUSD,
+      pool?.feeTier,
+      incentive?.minWidth ?? 0,
+      0
+    );
+
+    const fullRangeLiquidityUSD = convertBasedOnEfficiency(
+      activeTickLiqudityUSD,
+      pool?.feeTier,
+      incentive?.minWidth ?? 0,
+      MAX_RANGE
+    );
 
     if (!incentive || !pool || !rewardToken) return;
     return {
@@ -146,7 +160,7 @@ export const useIncentives = () => {
           (p: any) => p.id === pool?.token1.id
         );
 
-        let tokenPriceUSD =
+        const tokenPriceUSD =
           rewardToken?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
 
         const poolToken0PriceUSD =
@@ -154,32 +168,38 @@ export const useIncentives = () => {
         const poolToken1PriceUSD =
           poolToken1?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
 
-        let activeLiqudityUSD = getActiveLiquidityUSD(
-          pool?.liquidity,
+        const activeTickLiqudityUSD = getAmountsCurrentTickUSD(
+          pool?.sqrtPrice,
           pool?.tick,
+          pool?.liquidity,
           pool?.feeTier,
-          i.minWidth,
-          poolToken0?.decimals,
-          poolToken1?.decimals,
+          pool?.token0?.decimals,
+          pool?.token1?.decimals,
           poolToken0PriceUSD,
           poolToken1PriceUSD
         );
 
-        let fullRangeLiquidityUSD =
-          activeLiqudityUSD * positionEfficiency(pool?.feeTier, i.minWidth);
+        const activeLiqudityUSD = convertBasedOnEfficiency(
+          activeTickLiqudityUSD,
+          pool?.feeTier,
+          i?.minWidth ?? 0
+        );
 
-        if (!pool || !rewardToken) {
-          return;
-        } else if (
+        const fullRangeLiquidityUSD = convertBasedOnEfficiency(
+          activeTickLiqudityUSD,
+          pool?.feeTier,
+          MAX_RANGE
+        );
+
+        if (
+          !pool ||
+          !rewardToken ||
           !poolDayData ||
           !tokenPriceUSD ||
           !activeLiqudityUSD ||
           !fullRangeLiquidityUSD
         ) {
-          poolDayData = { date: 0, feesUSD: 0, pool: pool };
-          tokenPriceUSD = 0;
-          activeLiqudityUSD = 0;
-          fullRangeLiquidityUSD = 0;
+          return;
         }
 
         return {

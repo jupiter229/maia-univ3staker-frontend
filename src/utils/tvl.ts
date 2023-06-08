@@ -1,4 +1,6 @@
-import { TICK_BASE, TICK_INCREMENT } from "@/config/constants/const";
+import { ONE, TICK_INCREMENT, ZERO } from "@/config/constants/const";
+import { SwapMath, TickMath } from "@uniswap/v3-sdk";
+import JSBI from "jsbi";
 
 export function positionEfficiency(feeTier: number, minWidth: number): number {
   const tickSpacing = feeTierToTickSpacing(feeTier);
@@ -16,13 +18,8 @@ export function getLargerInTicks(
 ): number {
   return Math.max(
     tickSpacing,
-    Math.floor(minWidth / tickSpacing) * tickSpacing
+    (Math.floor(minWidth / tickSpacing) + 1) * tickSpacing
   );
-}
-
-// Convert Uniswap v3 tick to a price (i.e. the ratio between the amounts of tokens: token1/token0)
-function tickToPrice(tick: number): number {
-  return TICK_BASE ** tick;
 }
 
 export function feeTierToTickSpacing(feeTier: number): number {
@@ -33,41 +30,22 @@ export function feeTierToTickSpacing(feeTier: number): number {
   return 0;
 }
 
-function getActiveLiquidityAmounts(
-  liqudity: number,
-  tick: number,
-  tickSpacing: number,
-  decimals0: number,
-  decimals1: number
-): { adjustedAmount0: number; adjustedAmount1: number } {
-  // Compute the tick range
-  const bottomTick = Math.floor(tick / tickSpacing) * tickSpacing;
-  const topTick = bottomTick + tickSpacing;
-
-  // Compute the current price and adjust it to a human-readable format
-  const price = tickToPrice(tick);
-
-  // Compute square roots of prices corresponding to the bottom and top ticks
-  const sa = tickToPrice(Math.floor(bottomTick / 2));
-  const sb = tickToPrice(Math.floor(topTick / 2));
-  const sp = price ** 0.5;
-
-  // Compute real amounts of the two assets
-  const amount0 = (liqudity * (sb - sp)) / (sp * sb);
-  const amount1 = liqudity * (sp - sa);
-
-  // Adjust them to a human-readable format
-  const adjustedAmount0 = amount0 / 10 ** decimals0;
-  const adjustedAmount1 = amount1 / 10 ** decimals1;
-
-  return { adjustedAmount0, adjustedAmount1 };
+export function convertBasedOnEfficiency(
+  amount: number,
+  feeTier: number,
+  minWidth: number
+): number {
+  return (
+    (amount * positionEfficiency(feeTier, 0)) /
+    positionEfficiency(feeTier, minWidth)
+  );
 }
 
-export function getActiveLiquidityUSD(
-  liqudity: number,
-  tick: number,
+export function getAmountsCurrentTickUSD(
+  sqrtRatioX96: number,
+  tickCurrent: number,
+  liquidity: number,
   feeTier: number,
-  tickRange: number,
   decimals0: number,
   decimals1: number,
   price0: number,
@@ -75,17 +53,90 @@ export function getActiveLiquidityUSD(
 ) {
   const tickSpacing = feeTierToTickSpacing(feeTier);
 
-  const { adjustedAmount0, adjustedAmount1 } = getActiveLiquidityAmounts(
-    liqudity,
-    tick,
-    tickSpacing,
-    decimals0,
-    decimals1
+  if (!tickCurrent) return 0;
+
+  const amount0 = getAmountsCurrentTick(
+    false,
+    sqrtRatioX96,
+    tickCurrent,
+    liquidity,
+    feeTier,
+    tickSpacing
+  );
+
+  const amount1 = getAmountsCurrentTick(
+    true,
+    sqrtRatioX96,
+    tickCurrent,
+    liquidity,
+    feeTier,
+    tickSpacing
   );
 
   return (
-    ((adjustedAmount0 * price0 + adjustedAmount1 * price1) *
-      getLargerInTicks(tickSpacing, tickRange)) /
-    tickSpacing
+    (amount0 / 10 ** decimals0) * price0 + (amount1 / 10 ** decimals1) * price1
   );
+}
+
+interface StepComputations {
+  sqrtPriceStartX96: number;
+  tickNext: number;
+  sqrtPriceNextX96: JSBI;
+}
+
+export const LARGE_NUMBER_FOR_SWAP = JSBI.BigInt(
+  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+);
+
+/**
+ * Executes a swap
+ * @param zeroForOne Whether the amount in is token0 or token1
+ * @returns amountCalculated
+ */
+function getAmountsCurrentTick(
+  zeroForOne: boolean,
+  sqrtRatioX96: number,
+  tickCurrent: number,
+  liquidity: number,
+  feeTier: number,
+  tickSpacing: number
+): number {
+  const sqrtPriceLimitX96 = zeroForOne
+    ? JSBI.add(TickMath.MIN_SQRT_RATIO, JSBI.BigInt(ONE))
+    : JSBI.subtract(TickMath.MAX_SQRT_RATIO, JSBI.BigInt(ONE));
+
+  // keep track of swap state
+  const state = {
+    amountCalculated: ZERO,
+    sqrtPriceX96: sqrtRatioX96,
+    tick: tickCurrent,
+    liquidity: liquidity,
+  };
+
+  let step: Partial<StepComputations> = {};
+  step.sqrtPriceStartX96 = state.sqrtPriceX96;
+
+  step.tickNext = zeroForOne
+    ? (Math.ceil(state.tick / tickSpacing) - 1) * tickSpacing
+    : (Math.floor(state.tick / tickSpacing) + 1) * tickSpacing;
+
+  if (step.tickNext < TickMath.MIN_TICK) {
+    step.tickNext = TickMath.MIN_TICK;
+  } else if (step.tickNext > TickMath.MAX_TICK) {
+    step.tickNext = TickMath.MAX_TICK;
+  }
+
+  step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.tickNext);
+
+  let amountOut: JSBI | undefined;
+
+  [, , amountOut] = SwapMath.computeSwapStep(
+    JSBI.BigInt(state.sqrtPriceX96),
+    step.sqrtPriceNextX96,
+    JSBI.BigInt(state.liquidity),
+    LARGE_NUMBER_FOR_SWAP,
+    feeTier
+  );
+
+  return Number(amountOut) ?? 0;
 }

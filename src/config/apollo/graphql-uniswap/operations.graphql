@@ -34,6 +34,13 @@ fragment PoolFields on Pool {
   totalLiquidity
   sqrtPrice
   tick
+  ticks {
+    ...TickFields
+  }
+}
+
+fragment TickFields on Tick {
+  tickIdx
 }
 
 query GetPool($id: ID!) {

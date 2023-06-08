@@ -68,7 +68,6 @@ const useContractReadsGetRewardInfo = (
 ) => {
   return useContractReads({
     contracts: getCallsGetRewardInfo(args) as any,
-    watch: true as any,
   });
 };
 
