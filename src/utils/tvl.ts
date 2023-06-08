@@ -2,11 +2,22 @@ import { TICK_BASE, TICK_INCREMENT } from "@/config/constants/const";
 
 export function positionEfficiency(feeTier: number, minWidth: number): number {
   const tickSpacing = feeTierToTickSpacing(feeTier);
-  const tickRange = Math.max(
+  return (
+    1 /
+    (1 -
+      (1 / (1 + TICK_INCREMENT * getLargerInTicks(tickSpacing, minWidth))) **
+        (1 / 4))
+  );
+}
+
+export function getLargerInTicks(
+  tickSpacing: number,
+  minWidth: number
+): number {
+  return Math.max(
     tickSpacing,
     Math.floor(minWidth / tickSpacing) * tickSpacing
   );
-  return 1 / (1 - (1 / (1 + TICK_INCREMENT * tickRange)) ** (1 / 4));
 }
 
 // Convert Uniswap v3 tick to a price (i.e. the ratio between the amounts of tokens: token1/token0)
@@ -14,7 +25,7 @@ function tickToPrice(tick: number): number {
   return TICK_BASE ** tick;
 }
 
-function feeTierToTickSpacing(feeTier: number): number {
+export function feeTierToTickSpacing(feeTier: number): number {
   if (feeTier == 100) return 1;
   if (feeTier == 500) return 10;
   if (feeTier == 3000) return 60;
@@ -25,12 +36,10 @@ function feeTierToTickSpacing(feeTier: number): number {
 function getActiveLiquidityAmounts(
   liqudity: number,
   tick: number,
-  feeTier: number,
+  tickSpacing: number,
   decimals0: number,
   decimals1: number
 ): { adjustedAmount0: number; adjustedAmount1: number } {
-  const tickSpacing = feeTierToTickSpacing(feeTier);
-
   // Compute the tick range
   const bottomTick = Math.floor(tick / tickSpacing) * tickSpacing;
   const topTick = bottomTick + tickSpacing;
@@ -58,18 +67,25 @@ export function getActiveLiquidityUSD(
   liqudity: number,
   tick: number,
   feeTier: number,
+  tickRange: number,
   decimals0: number,
   decimals1: number,
   price0: number,
   price1: number
 ) {
+  const tickSpacing = feeTierToTickSpacing(feeTier);
+
   const { adjustedAmount0, adjustedAmount1 } = getActiveLiquidityAmounts(
     liqudity,
     tick,
-    feeTier,
+    tickSpacing,
     decimals0,
     decimals1
   );
 
-  return adjustedAmount0 * price0 + adjustedAmount1 * price1;
+  return (
+    ((adjustedAmount0 * price0 + adjustedAmount1 * price1) *
+      getLargerInTicks(tickSpacing, tickRange)) /
+    tickSpacing
+  );
 }

@@ -40,15 +40,18 @@ export const useIncentive = (id: string) => {
     const rewardToken = rewardTokensData?.token;
 
     let tokenPriceUSD =
-    rewardToken?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
+      rewardToken?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
 
-    const poolToken0PriceUSD = pool?.token0?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
-    const poolToken1PriceUSD = pool?.token1?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
+    const poolToken0PriceUSD =
+      pool?.token0?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
+    const poolToken1PriceUSD =
+      pool?.token1?.derivedETH * ethPrice?.bundles[0].ethPriceUSD;
 
     let activeLiqudityUSD = getActiveLiquidityUSD(
       pool?.liquidity,
       pool?.tick,
       pool?.feeTier,
+      incentive?.minWidth ?? 0,
       pool?.token0?.decimals,
       pool?.token1?.decimals,
       poolToken0PriceUSD,
@@ -56,8 +59,8 @@ export const useIncentive = (id: string) => {
     );
 
     let fullRangeLiquidityUSD =
-      activeLiqudityUSD * positionEfficiency(pool?.feeTier, incentive?.minWidth ?? 0);
-
+      activeLiqudityUSD *
+      positionEfficiency(pool?.feeTier, incentive?.minWidth ?? 0);
 
     if (!incentive || !pool || !rewardToken) return;
     return {
@@ -101,7 +104,9 @@ export const useIncentives = () => {
     useGetTokensQuery({
       variables: {
         filter: {
-          id_in: poolsData?.pools.map((i: any) => [i.token0.id, i.token1.id]).flat(),
+          id_in: poolsData?.pools
+            .map((i: any) => [i.token0.id, i.token1.id])
+            .flat(),
         },
       },
     });
@@ -131,9 +136,15 @@ export const useIncentives = () => {
         const pool = pools.find((p: any) => p.id === i.pool);
         let poolDayData = poolsDayDatas.find((d) => d.pool.id === pool?.id);
 
-        const rewardToken = rewardTokens.find((t: any) => t.id === i.rewardToken);
-        const poolToken0 = poolTokens.find((p: any) => p.id === pool?.token0.id);
-        const poolToken1 = poolTokens.find((p: any) => p.id === pool?.token1.id);
+        const rewardToken = rewardTokens.find(
+          (t: any) => t.id === i.rewardToken
+        );
+        const poolToken0 = poolTokens.find(
+          (p: any) => p.id === pool?.token0.id
+        );
+        const poolToken1 = poolTokens.find(
+          (p: any) => p.id === pool?.token1.id
+        );
 
         let tokenPriceUSD =
           rewardToken?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
@@ -143,12 +154,11 @@ export const useIncentives = () => {
         const poolToken1PriceUSD =
           poolToken1?.derivedETH * ethPrice.bundles[0].ethPriceUSD;
 
-        const activeLiqudity = pool?.liquidity;
-
         let activeLiqudityUSD = getActiveLiquidityUSD(
-          activeLiqudity,
+          pool?.liquidity,
           pool?.tick,
           pool?.feeTier,
+          i.minWidth,
           poolToken0?.decimals,
           poolToken1?.decimals,
           poolToken0PriceUSD,
