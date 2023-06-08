@@ -6,6 +6,7 @@ import {
 } from "@/types";
 import { useMemo } from "react";
 import { useIncentive, useIncentives } from "./incentives";
+import { useIncentiveRewards } from "./stake";
 import { useGraphClient, useWeb3 } from "./web3";
 
 export const useUserIncentivePositions = (incentiveId: string) => {
@@ -13,7 +14,25 @@ export const useUserIncentivePositions = (incentiveId: string) => {
   const [positions, positionsLoading] = useUserPositions(
     incentive?.pool.id || ""
   );
-  return {incentive: incentive, positions: [positions, incentiveLoading || positionsLoading]} as const;
+
+  const incentiveRewards = useIncentiveRewards(
+    positions?.map((p) => ({
+      incentive: incentive,
+      tokenId: p.tokenId,
+    })) ?? []
+  );
+
+  return {
+    positions: [
+      positions?.map((p, i) => ({
+        ...p,
+        incentiveRewards:
+          incentiveRewards !== undefined ? incentiveRewards[i] : 0,
+        incentive,
+      })),
+      incentiveLoading || positionsLoading,
+    ],
+  } as const;
 };
 
 export const useUserPositions = (poolId?: string) => {
@@ -52,7 +71,7 @@ export const useUserPositions = (poolId?: string) => {
           deposited: p.owner !== stakerPosition?.owner,
         };
       })
-      .filter((p: any) => poolId === undefined ? true : p.pool.id === poolId);
+      .filter((p: any) => (poolId === undefined ? true : p.pool.id === poolId));
     return positions as IPosition[];
   }, [data, poolId, stakerData]);
 
@@ -77,5 +96,18 @@ export const useUserStakedPositions = () => {
     return result;
   }, [incentives, positions]);
 
-  return [result, positionsLoading || incentivesLoading] as const;
+  const incentiveRewards = useIncentiveRewards(
+    result?.map((p) => ({
+      incentive: p.incentive,
+      tokenId: p.tokenId,
+    })) ?? []
+  );
+
+  return [
+    result?.map((p, i) => ({
+      ...p,
+      incentiveRewards: incentiveRewards != undefined ? incentiveRewards[i] : 0,
+    })),
+    positionsLoading || incentivesLoading,
+  ] as const;
 };

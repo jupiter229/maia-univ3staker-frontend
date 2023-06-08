@@ -225,7 +225,9 @@ export const useIncentiveRewards = (
     return isLoading
       ? []
       : data.map((rewards, i) => {
-          return rewards.result[0];
+          return rewards.result === undefined || rewards.result === null
+            ? 0
+            : rewards.result[0];
         });
   }, [args, data, isError, isLoading]);
 

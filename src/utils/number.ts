@@ -10,7 +10,5 @@ export const formatBigInt = (
   value: BigInt,
   { decimals = 18, precision = 2 } = {}
 ) => {
-  return (
-    Number(value) / 10 ** decimals
-  ).toFixed(precision);
+  return (Number(value) / 10 ** decimals).toFixed(precision);
 };
