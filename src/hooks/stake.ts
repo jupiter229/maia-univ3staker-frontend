@@ -122,22 +122,20 @@ export const useStake = (incentiveId: string) => {
   return stake;
 };
 
-export const useWithdraw = (incentiveId: string) => {
+export const useWithdraw = () => {
   const { account, chainId } = useWeb3();
   const { data, isLoading, isSuccess, write } =
     useStakerContractWriteWithdraw(chainId);
-  const [incentive] = useIncentive(incentiveId);
 
   const withdraw = useCallback(
     async (nftId: string | number) => {
-      if (!incentive) throw "No incentive";
       if (!write) throw "No staker";
       if (!account) throw "No account";
 
-      write({ args: [nftId.toString(), account, encodeIncentive(incentive)] });
+      write({ args: [nftId.toString(), account, ""] });
       return isSuccess ? data : isLoading;
     },
-    [account, data, incentive, isLoading, isSuccess, write]
+    [account, data, isLoading, isSuccess, write]
   );
 
   return withdraw;

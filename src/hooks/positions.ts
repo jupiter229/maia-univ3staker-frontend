@@ -5,6 +5,7 @@ import {
   useGetStakerPositionsQuery,
 } from "@/types";
 import { useMemo } from "react";
+import { getAddress } from "viem";
 import { useIncentive, useIncentives } from "./incentives";
 import { useIncentiveRewards } from "./stake";
 import { useGraphClient, useWeb3 } from "./web3";
@@ -79,6 +80,8 @@ export const useUserPositions = (poolId?: string) => {
 };
 
 export const useUserStakedPositions = () => {
+  const { address } = useWeb3();
+
   const [positions, positionsLoading] = useUserPositions();
   const [incentives, incentivesLoading] = useIncentives();
 
@@ -86,17 +89,25 @@ export const useUserStakedPositions = () => {
     if (!positions) return;
     const result = positions
       .map((p: any) => {
-        if (!p.deposited) return;
-        const id = p.stakedIncentives?.[0]?.incentive?.id;
-        const incentive = incentives?.find((i: any) => i.id === id);
+        if (!p.deposited || p.staked) return;
 
-        if (!incentive) return { ...p, incentive: undefined };
-
-        return { ...p, incentive };
+        return { ...p, incentive: undefined };
       })
       .filter(Boolean) as IStakedPosition[];
+
+    if (!incentives) return result;
+    incentives.forEach((i: any) => {
+      i?.stakedPositions?.forEach((p: any) => {
+        if (getAddress(p.position.owner) === address)
+          result.push({
+            ...positions.find((pos) => pos.tokenId === p.position.tokenId),
+            incentive: i,
+          } as IStakedPosition);
+      });
+    });
+
     return result;
-  }, [incentives, positions]);
+  }, [address, incentives, positions]);
 
   const incentiveRewards = useIncentiveRewards(
     result?.map((p) => ({

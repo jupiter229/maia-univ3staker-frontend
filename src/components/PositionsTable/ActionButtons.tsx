@@ -35,7 +35,7 @@ export const ActionButtons: React.FC<IProps> = ({
   const onClaim = useClaimRewards(unstakeInput);
   const onDepositStake = useDepositStake(incentiveId);
   const onStake = useStake(incentiveId);
-  const onWithdraw = useWithdraw(incentiveId);
+  const onWithdraw = useWithdraw();
   const hasExpired = incentive?.endTime * 1000 <= Date.now();
 
   const isStakedInIncentive = position.stakedIncentives.find(
@@ -61,14 +61,15 @@ export const ActionButtons: React.FC<IProps> = ({
         </>
       ) : position.deposited ? (
         <>
-          {hasExpired || (
-            <Button
-              className="w-full max-w-[200px]"
-              onClick={() => onStake(position.id)}
-            >
-              Stake
-            </Button>
-          )}
+          {hasExpired ||
+            (!!incentiveId && (
+              <Button
+                className="w-full max-w-[200px]"
+                onClick={() => onStake(position.id)}
+              >
+                Stake
+              </Button>
+            ))}
           <Button
             className="w-full max-w-[200px]"
             onClick={() => onWithdraw(position.id)}

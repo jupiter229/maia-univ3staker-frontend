@@ -138,16 +138,16 @@ export const PositionsTable: React.FC<IProps> = ({
         <>
           <h5 className="text-lg font-semibold px-6 w-full grid grid-cols-5">
             {title}
-            {incentive !== null && data !== undefined && data.length > 0 && (
+            {incentive !== null && (
               <Link
                 target="_blank"
                 href={
                   "https://uni.maiadao.io/#/add/" +
-                  data[0].pool.token0.id +
+                  incentive?.pool.token0.id +
                   "/" +
-                  data[0].pool.token1.id +
+                  incentive?.pool.token1.id +
                   "/" +
-                  data[0].pool.feeTier
+                  incentive?.pool.feeTier
                 }
                 className="col-start-5"
               >
@@ -155,7 +155,7 @@ export const PositionsTable: React.FC<IProps> = ({
               </Link>
             )}
           </h5>
-          {incentive !== null && data !== undefined && data.length > 0 && (
+          {incentive !== null && (
             <div className="bg-dark-hard rounded-xl p-4 text-white w-full divide-y divide-blue-200">
               <div className="text-md font-semibold px-6 w-full grid grid-cols-5 mb-1">
                 <p>Pool</p>
@@ -166,17 +166,17 @@ export const PositionsTable: React.FC<IProps> = ({
               </div>
               <h5 className="text-md px-6 w-full grid grid-cols-5 pt-2">
                 <p>
-                  {data[0].pool.token0.symbol}/
-                  {data[0].pool.token1.symbol +
+                  {incentive?.pool.token0.symbol}/
+                  {incentive?.pool.token1.symbol +
                     " " +
-                    data[0].pool.feeTier / 10000}
+                    incentive?.pool.feeTier / 10000}
                   % Fee
                 </p>
                 <div>
                   <p>{formatDateTime(incentive?.startTime * 1000)}</p>
                   <p>{formatDateTime(incentive?.endTime * 1000)}</p>
                 </div>
-                <p>{formatUSD(data[0].pool.totalValueLockedUSD)}</p>
+                <p>{formatUSD(incentive?.pool.totalValueLockedUSD)}</p>
                 <div>
                   <p>±{incentive?.minWidth * TICK_WIDTH}%</p>
                   <p>
