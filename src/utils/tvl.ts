@@ -95,6 +95,22 @@ function getAmountsCurrentTick(
   feeTier: number,
   tickSpacing: number
 ): number {
+  const [, , amountOut] = SwapMath.computeSwapStep(
+    JSBI.BigInt(sqrtPriceX96),
+    getSqrtPriceNext(zeroForOne, tickCurrent, tickSpacing),
+    JSBI.BigInt(liquidity),
+    LARGE_NUMBER_FOR_SWAP,
+    feeTier
+  );
+
+  return Number(amountOut) ?? 0;
+}
+
+function getSqrtPriceNext(
+  zeroForOne: boolean,
+  tickCurrent: number,
+  tickSpacing: number
+) {
   let tickNext = zeroForOne
     ? (Math.ceil(tickCurrent / tickSpacing) - 1) * tickSpacing
     : (Math.floor(tickCurrent / tickSpacing) + 1) * tickSpacing;
@@ -105,17 +121,5 @@ function getAmountsCurrentTick(
     tickNext = TickMath.MAX_TICK;
   }
 
-  const sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(tickNext);
-
-  let amountOut: JSBI | undefined;
-
-  [, , amountOut] = SwapMath.computeSwapStep(
-    JSBI.BigInt(sqrtPriceX96),
-    sqrtPriceNextX96,
-    JSBI.BigInt(liquidity),
-    LARGE_NUMBER_FOR_SWAP,
-    feeTier
-  );
-
-  return Number(amountOut) ?? 0;
+  return TickMath.getSqrtRatioAtTick(tickNext);
 }
