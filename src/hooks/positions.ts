@@ -1,9 +1,11 @@
 import {
   IPosition,
   IStakedPosition,
+  useGetEthPriceQuery,
   useGetPositionsQuery,
   useGetStakerPositionsQuery,
 } from "@/types";
+import { getPositionAmounts } from "@/utils/tvl";
 import { useMemo } from "react";
 import { getAddress } from "viem";
 import { useIncentive, useIncentives } from "./incentives";
@@ -39,6 +41,11 @@ export const useUserIncentivePositions = (incentiveId: string) => {
 export const useUserPositions = (poolId?: string) => {
   const { address } = useWeb3();
   const client = useGraphClient();
+
+  const { data: ethPrice, loading: ethPriceLoading } = useGetEthPriceQuery({
+    variables: { filter: { id_in: ["1"] } },
+  });
+
   const { data: stakerData, loading: stakerLoading } =
     useGetStakerPositionsQuery({
       variables: { where: { owner: address || "" } },
@@ -66,15 +73,32 @@ export const useUserPositions = (poolId?: string) => {
           (sp) => sp.tokenId === p.id
         );
 
+        const [amount0, amount1] = getPositionAmounts(
+          p.pool.tick,
+          p.tickLower.tickIdx,
+          p.tickUpper.tickIdx,
+          p.liquidity,
+          p.pool.sqrtPrice
+        );
+
+        const valueUSD =
+          ((p.pool.token0.derivedETH * amount0) / 10 ** p.pool.token0.decimals +
+            (p.pool.token1.derivedETH * amount1) /
+              10 ** p.pool.token1.decimals) *
+          ethPrice?.bundles[0].ethPriceUSD;
+
         return {
           ...stakerPosition,
           ...p,
+          amount0,
+          amount1,
+          valueUSD,
           deposited: p.owner !== stakerPosition?.owner,
         };
       })
       .filter((p: any) => (poolId === undefined ? true : p.pool.id === poolId));
     return positions as IPosition[];
-  }, [data, poolId, stakerData]);
+  }, [data, ethPrice?.bundles, poolId, stakerData]);
 
   return [result, loading || stakerLoading] as const;
 };

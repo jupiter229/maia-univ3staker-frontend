@@ -28,6 +28,7 @@ fragment StakeFields on Stake {
   incentive {
     ...BaseIncentiveFields
   }
+  stakeTime
 }
 
 fragment IncentiveFields on Incentive {

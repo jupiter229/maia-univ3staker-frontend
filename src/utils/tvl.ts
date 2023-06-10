@@ -1,5 +1,5 @@
-import { TICK_INCREMENT } from "@/config/constants/const";
-import { SwapMath, TickMath } from "@uniswap/v3-sdk";
+import { TICK_INCREMENT, ZERO } from "@/config/constants/const";
+import { SqrtPriceMath, SwapMath, TickMath } from "@uniswap/v3-sdk";
 import JSBI from "jsbi";
 
 export function positionEfficiency(feeTier: number, minWidth: number): number {
@@ -122,4 +122,87 @@ function getSqrtPriceNext(
   }
 
   return TickMath.getSqrtRatioAtTick(tickNext);
+}
+
+export function getPositionAmounts(
+  tickCurrent: number,
+  tickLower: number,
+  tickUpper: number,
+  liquidity: number,
+  sqrtRatioX96: number
+): [number, number] {
+  const amount0 = getAmount0(
+    Number(tickCurrent),
+    Number(tickLower),
+    Number(tickUpper),
+    liquidity,
+    sqrtRatioX96
+  );
+  const amount1 = getAmount1(
+    Number(tickCurrent),
+    Number(tickLower),
+    Number(tickUpper),
+    liquidity,
+    sqrtRatioX96
+  );
+
+  return [Number(amount0), Number(amount1)];
+}
+
+/**
+ * Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
+ */
+function getAmount0(
+  tickCurrent: number,
+  tickLower: number,
+  tickUpper: number,
+  liquidity: number,
+  sqrtRatioX96: number
+): JSBI {
+  if (tickCurrent < tickLower) {
+    return SqrtPriceMath.getAmount0Delta(
+      TickMath.getSqrtRatioAtTick(tickLower),
+      TickMath.getSqrtRatioAtTick(tickUpper),
+      JSBI.BigInt(liquidity),
+      false
+    );
+  } else if (tickCurrent < tickUpper) {
+    return SqrtPriceMath.getAmount0Delta(
+      JSBI.BigInt(sqrtRatioX96),
+      TickMath.getSqrtRatioAtTick(tickUpper),
+      JSBI.BigInt(liquidity),
+      false
+    );
+  } else {
+    return JSBI.BigInt(ZERO);
+  }
+}
+
+/**
+ * Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
+ */
+function getAmount1(
+  tickCurrent: number,
+  tickLower: number,
+  tickUpper: number,
+  liquidity: number,
+  sqrtRatioX96: number
+): JSBI {
+  if (tickCurrent < tickLower) {
+    return JSBI.BigInt(ZERO);
+  } else if (tickCurrent < tickUpper) {
+    return SqrtPriceMath.getAmount1Delta(
+      TickMath.getSqrtRatioAtTick(tickLower),
+      JSBI.BigInt(sqrtRatioX96),
+      JSBI.BigInt(liquidity),
+      false
+    );
+  } else {
+    return SqrtPriceMath.getAmount1Delta(
+      TickMath.getSqrtRatioAtTick(tickLower),
+      TickMath.getSqrtRatioAtTick(tickUpper),
+      JSBI.BigInt(liquidity),
+      false
+    );
+  }
 }

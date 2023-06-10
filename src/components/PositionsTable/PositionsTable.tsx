@@ -45,14 +45,11 @@ export const PositionsTable: React.FC<IProps> = ({
   const columns = useMemo(
     () => [
       ...staticColumns,
-      // {
-      //   Header: "Position Value",
-      //   accessor: "value",
-      //   Cell: ({ row: { original: row } }) =>
-      //     formatUSD(
-      //       (row.liquidity / row.pool.liquidity) * row.pool.totalValueLockedUSD
-      //     ),
-      // },
+      {
+        Header: "Position Value",
+        accessor: "value",
+        Cell: ({ row: { original: row } }) => formatUSD(row.valueUSD),
+      },
       {
         Header: "Position Range",
         accessor: "range",
@@ -102,6 +99,30 @@ export const PositionsTable: React.FC<IProps> = ({
                   <></>
                 )}
               </p>
+            </>
+          ),
+      },
+      {
+        Header: "Stake APR",
+        accessor: "apr",
+        Cell: ({ row: { original: row } }) =>
+          !!row.incentive &&
+          !!row.incentiveRewards &&
+          row.incentive.tokenPriceUSD >= 0 && (
+            <>
+              {(
+                (((row.incentiveRewards /
+                  10 ** row.incentive.rewardToken.decimals) *
+                  row.incentive.tokenPriceUSD) /
+                  row.valueUSD) *
+                (YEAR /
+                  (new Date().getTime() / 1000 -
+                    row.stakedIncentives.find(
+                      (i) => i.incentive.id === row.incentive.id
+                    ).stakeTime)) *
+                100
+              ).toFixed(2)}
+              %
             </>
           ),
       },
