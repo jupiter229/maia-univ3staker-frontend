@@ -16,9 +16,7 @@ import { Table } from "../Table";
 import { ActionButtons } from "./ActionButtons";
 
 interface IProps {
-  incentiveId?: string;
   data?: any[];
-  hasExpired?: boolean;
   title?: string;
   incentive?: IIncentive;
 }
@@ -37,7 +35,6 @@ const staticColumns = [
 
 export const PositionsTable: React.FC<IProps> = ({
   data,
-  incentiveId,
   incentive = null,
   title = "My Positions",
 }) => {
@@ -146,11 +143,11 @@ export const PositionsTable: React.FC<IProps> = ({
           incentive.minWidth > row.tickUpper.tickIdx - row.tickLower.tickIdx ? (
             "Position range to low to stake"
           ) : (
-            <ActionButtons incentiveId={incentiveId} position={row} />
+            <ActionButtons incentive={row.incentive ?? null} position={row} />
           ),
       },
     ],
-    [incentive, incentiveId]
+    [incentive]
   );
 
   return (
@@ -164,11 +161,11 @@ export const PositionsTable: React.FC<IProps> = ({
                 target="_blank"
                 href={
                   "https://uni.maiadao.io/#/add/" +
-                  incentive?.pool.token0.id +
+                  incentive.pool.token0.id +
                   "/" +
-                  incentive?.pool.token1.id +
+                  incentive.pool.token1.id +
                   "/" +
-                  incentive?.pool.feeTier
+                  incentive.pool.feeTier
                 }
                 className="col-start-5"
               >
@@ -187,43 +184,43 @@ export const PositionsTable: React.FC<IProps> = ({
               </div>
               <h5 className="text-md px-6 w-full grid grid-cols-5 pt-2">
                 <p>
-                  {incentive?.pool.token0.symbol}/
-                  {incentive?.pool.token1.symbol +
+                  {incentive.pool.token0.symbol}/
+                  {incentive.pool.token1.symbol +
                     " " +
-                    incentive?.pool.feeTier / 10000}
+                    incentive.pool.feeTier / 10000}
                   % Fee
                 </p>
                 <div>
-                  <p>{formatDateTime(incentive?.startTime * 1000)}</p>
-                  <p>{formatDateTime(incentive?.endTime * 1000)}</p>
+                  <p>{formatDateTime(incentive.startTime * 1000)}</p>
+                  <p>{formatDateTime(incentive.endTime * 1000)}</p>
                 </div>
-                <p>{formatUSD(incentive?.pool.totalValueLockedUSD)}</p>
+                <p>{formatUSD(incentive.pool.totalValueLockedUSD)}</p>
                 <div>
-                  <p>±{incentive?.minWidth * TICK_WIDTH}%</p>
+                  <p>±{incentive.minWidth * TICK_WIDTH}%</p>
                   <p>
-                    {incentive?.minWidth}{" "}
-                    {incentive?.minWidth == 1 ? "Tick" : "Ticks"}
+                    {incentive.minWidth}{" "}
+                    {incentive.minWidth == 1 ? "Tick" : "Ticks"}
                   </p>
                 </div>
                 <p>
-                  {(incentive?.tokenPriceUSD > 0 &&
-                    incentive?.fullRangeLiquidityUSD > 0 &&
+                  {(incentive.tokenPriceUSD > 0 &&
+                    incentive.fullRangeLiquidityUSD > 0 &&
                     (
-                      ((formatBigInt(incentive?.reward) *
-                        incentive?.tokenPriceUSD) /
-                        incentive?.fullRangeLiquidityUSD) *
-                      (YEAR / (incentive?.endTime - incentive?.startTime)) *
+                      ((formatBigInt(incentive.reward) *
+                        incentive.tokenPriceUSD) /
+                        incentive.fullRangeLiquidityUSD) *
+                      (YEAR / (incentive.endTime - incentive.startTime)) *
                       100
                     ).toFixed(2)) ||
                     0}
                   % -{" "}
-                  {(incentive?.tokenPriceUSD > 0 &&
-                    incentive?.activeLiqudityUSD > 0 &&
+                  {(incentive.tokenPriceUSD > 0 &&
+                    incentive.activeLiqudityUSD > 0 &&
                     (
-                      ((formatBigInt(incentive?.reward) *
-                        incentive?.tokenPriceUSD) /
-                        incentive?.activeLiqudityUSD) *
-                      (YEAR / (incentive?.endTime - incentive?.startTime)) *
+                      ((formatBigInt(incentive.reward) *
+                        incentive.tokenPriceUSD) /
+                        incentive.activeLiqudityUSD) *
+                      (YEAR / (incentive.endTime - incentive.startTime)) *
                       100
                     ).toFixed(2)) ||
                     0}

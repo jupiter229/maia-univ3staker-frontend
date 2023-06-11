@@ -1,19 +1,21 @@
 import {
+  IIncentive,
   IPosition,
   IStakedPosition,
   useGetEthPriceQuery,
   useGetPositionsQuery,
   useGetStakerPositionsQuery,
 } from "@/types";
-import { getPositionAmounts } from "@/utils/tvl";
+import { getPositionAmounts } from "@/utils/positions";
 import { useMemo } from "react";
 import { getAddress } from "viem";
-import { useIncentive, useIncentives } from "./incentives";
+import { useIncentives } from "./incentives";
 import { useIncentiveRewards } from "./stake";
 import { useGraphClient, useWeb3 } from "./web3";
 
-export const useUserIncentivePositions = (incentiveId: string) => {
-  const [incentive, incentiveLoading] = useIncentive(incentiveId);
+export const useUserIncentivePositions = (
+  incentive: IIncentive | undefined
+) => {
   const [positions, positionsLoading] = useUserPositions(
     incentive?.pool.id || ""
   );
@@ -33,7 +35,7 @@ export const useUserIncentivePositions = (incentiveId: string) => {
           incentiveRewards !== undefined ? incentiveRewards[i] : 0,
         incentive,
       })),
-      incentiveLoading || positionsLoading,
+      positionsLoading,
     ],
   } as const;
 };
@@ -42,7 +44,7 @@ export const useUserPositions = (poolId?: string) => {
   const { address } = useWeb3();
   const client = useGraphClient();
 
-  const { data: ethPrice, loading: ethPriceLoading } = useGetEthPriceQuery({
+  const { data: ethPrice } = useGetEthPriceQuery({
     variables: { filter: { id_in: ["1"] } },
   });
 
