@@ -1,6 +1,7 @@
 import { ZERO } from "@/config/constants/const";
-import { SqrtPriceMath, TickMath } from "@uniswap/v3-sdk";
 import JSBI from "jsbi";
+import { SqrtPriceMath } from "./uniswap/sqrtPriceMath";
+import { TickMath } from "./uniswap/tickMath";
 
 export function getPositionAmounts(
   tickCurrent: number,
@@ -41,7 +42,7 @@ function _getPositionAmounts(
     sqrtRatioX96
   );
 
-  return [Number(amount0), Number(amount1)];
+  return [JSBI.toNumber(amount0), JSBI.toNumber(amount1)];
 }
 
 /**

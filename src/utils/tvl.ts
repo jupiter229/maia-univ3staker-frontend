@@ -1,6 +1,7 @@
-import { TICK_INCREMENT } from "@/config/constants/const";
-import { FeeAmount, SwapMath, TickMath } from "@uniswap/v3-sdk";
+import { FeeAmount, TICK_INCREMENT } from "@/config/constants/const";
 import JSBI from "jsbi";
+import { SwapMath } from "./uniswap/swapMath";
+import { TickMath } from "./uniswap/tickMath";
 
 export function positionEfficiency(feeTier: number, minWidth: number): number {
   const tickSpacing = feeTierToTickSpacing(feeTier);
@@ -113,7 +114,7 @@ function getAmountsCurrentTick(
     FEES[feeTier]
   );
 
-  return Number(amountOut) ?? 0;
+  return JSBI.toNumber(amountOut) ?? 0;
 }
 
 function getSqrtPriceNext(

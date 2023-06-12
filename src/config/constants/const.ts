@@ -1,3 +1,5 @@
+import JSBI from "jsbi";
+
 export const TICK_WIDTH = 0.01;
 export const TICK_INCREMENT = 0.0001;
 export const TICK_BASE = 1.0001;
@@ -8,5 +10,24 @@ export const MAX_RANGE = 2 ** 256;
 export const YEAR = 31536000;
 
 // constants used internally but not expected to be used externally
-export const ZERO = 0;
-export const ONE = 1;
+export const NEGATIVE_ONE = JSBI.BigInt(-1);
+export const ZERO = JSBI.BigInt(0);
+export const ONE = JSBI.BigInt(1);
+
+// used in liquidity amount math
+export const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
+export const Q192 = JSBI.exponentiate(Q96, JSBI.BigInt(2));
+
+export const MaxUint256 = JSBI.BigInt(
+  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+);
+
+/**
+ * The default factory enabled fee amounts, denominated in hundredths of bips.
+ */
+export enum FeeAmount {
+  LOWEST = 100,
+  LOW = 500,
+  MEDIUM = 3000,
+  HIGH = 10000,
+}
