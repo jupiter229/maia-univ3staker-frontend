@@ -1,3 +1,4 @@
+import { ZERO_ADDRESS } from "@/config/constants/const";
 import {
   IIncentive,
   IPosition,
@@ -54,7 +55,7 @@ export const useUserPositions = (poolId?: string) => {
       client,
     });
   const id_in = stakerData?.positions.map((p: any) => p.tokenId) || [];
-  const { data, loading } = useGetPositionsQuery({
+  const { data: poolData, loading } = useGetPositionsQuery({
     variables: {
       where: {
         or: [
@@ -68,8 +69,8 @@ export const useUserPositions = (poolId?: string) => {
     },
   });
   const result = useMemo(() => {
-    if (!data || !stakerData) return;
-    const positions = data.positions
+    if (!poolData || !stakerData) return;
+    const positions = poolData.positions
       .map((p: any) => {
         const stakerPosition = stakerData.positions.find(
           (sp) => sp.tokenId === p.id
@@ -95,12 +96,12 @@ export const useUserPositions = (poolId?: string) => {
           amount0,
           amount1,
           valueUSD,
-          deposited: p.owner !== stakerPosition?.owner,
+          deposited: ZERO_ADDRESS !== stakerPosition?.owner,
         };
       })
       .filter((p: any) => (poolId === undefined ? true : p.pool.id === poolId));
     return positions as IPosition[];
-  }, [data, ethPrice?.bundles, poolId, stakerData]);
+  }, [poolData, ethPrice?.bundles, poolId, stakerData]);
 
   return [result, loading || stakerLoading] as const;
 };

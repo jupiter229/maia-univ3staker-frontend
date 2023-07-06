@@ -35,14 +35,6 @@ export const useStakerContractWriteWithdraw = (chainId: number) => {
   });
 };
 
-// export const useStakerContractWriteClaimReward = (chainId: number) => {
-//   return useContractWrite({
-//   ...stakerContract,
-//     chainId: chainId,
-//     functionName: "claimReward",
-//   });
-// };
-
 const usePositionManagerContractWriteSafeTransferFrom = (chainId: number) => {
   return useContractWrite({
     address: getAddress(Contracts.positionManager[1088]),
@@ -67,6 +59,24 @@ const useContractReadsGetRewardInfo = (
 ) => {
   return useContractReads({
     contracts: getCallsGetRewardInfo(args),
+  });
+};
+
+const getCallsUserTokenRewards = (
+  args: { rewardToken: string; user: string }[]
+): any => {
+  return args.map((arg) => ({
+    ...stakerContract,
+    functionName: "rewards",
+    args: [arg.rewardToken, arg.user],
+  }));
+};
+
+const useContractReadsUserTokenRewards = (
+  args: { rewardToken: string; user: string }[]
+) => {
+  return useContractReads({
+    contracts: getCallsUserTokenRewards(args),
   });
 };
 
@@ -136,6 +146,35 @@ export const useWithdraw = () => {
   );
 
   return withdraw;
+};
+
+export const useClaimAccruedRewards = () => {
+  const { account, chainId } = useWeb3();
+  const { data, isLoading, isSuccess, write } =
+    useStakerContractWriteMulticall(chainId);
+
+  const claim = useCallback(
+    async (tokens: string[]) => {
+      const calls = tokens
+        .map((token) => {
+          return [
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "claimReward",
+              args: [token, account, 0],
+            }),
+          ];
+        })
+        .flat();
+
+      write({ args: [calls] });
+
+      return isSuccess ? data : isLoading;
+    },
+    [account, data, isLoading, isSuccess, write]
+  );
+
+  return claim;
 };
 
 export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
@@ -238,6 +277,31 @@ export const useIncentiveRewards = (
     args.map((arg) => ({
       incentive: getIncentiveStruct(arg.incentive),
       tokenId: arg.tokenId,
+    }))
+  );
+
+  const result = useMemo(() => {
+    if (!args || isError || !data) return;
+
+    return isLoading
+      ? []
+      : (data as Data).map((rewards, i) => {
+          return rewards.result === undefined || rewards.result === null
+            ? 0
+            : Number(rewards.result[0]);
+        });
+  }, [args, data, isError, isLoading]);
+
+  return result;
+};
+
+export const useUserTokenRewards = (
+  args: { rewardToken: string; user: string }[]
+) => {
+  const { data, isError, isLoading } = useContractReadsUserTokenRewards(
+    args.map((arg) => ({
+      rewardToken: arg.rewardToken,
+      user: arg.user,
     }))
   );
 

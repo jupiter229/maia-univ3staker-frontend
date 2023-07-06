@@ -22,6 +22,8 @@ export const MaxUint256 = JSBI.BigInt(
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 );
 
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 /**
  * The default factory enabled fee amounts, denominated in hundredths of bips.
  */
@@ -31,3 +33,7 @@ export enum FeeAmount {
   MEDIUM = 3000,
   HIGH = 10000,
 }
+
+export const WHITELISTED_REWARDS = [
+  "0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000",
+];
