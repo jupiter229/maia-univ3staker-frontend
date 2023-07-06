@@ -16,6 +16,12 @@ const RewardsWarning = () => {
     });
   }, [rewards]);
 
+  const unclaimedRewards = useMemo(() => {
+    return rewards.map((reward) => {
+      return (reward.rewardAmount / 1e18).toFixed(2) + " METIS";
+    });
+  }, [rewards]);
+
   return (
     <>
       {hasUnclaimedRewards ? (
@@ -32,7 +38,8 @@ const RewardsWarning = () => {
           <span className="sr-only">Info</span>
           <div className="flex my-auto">
             <span className="font-medium">Unclaimed Rewards!</span>
-            <p className="mx-2"> You have unclaimed rewards</p>
+            <p className="mx-2">You have unclaimed rewards:</p>
+            {unclaimedRewards}
           </div>
           <div className="flex my-auto mx-3">
             <WarningClaimButton tokens={tokens}></WarningClaimButton>
