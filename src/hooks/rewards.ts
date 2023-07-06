@@ -1,4 +1,5 @@
 import { WHITELISTED_REWARDS, ZERO_ADDRESS } from "@/config/constants/const";
+import { useMemo } from "react";
 import { useUserTokenRewards } from "./stake";
 import { useWeb3 } from "./web3";
 
@@ -8,17 +9,19 @@ export const useUserRewards = () => {
   const rewards = useUserTokenRewards(
     WHITELISTED_REWARDS.map((token) => ({
       rewardToken: token,
-      user: address || ZERO_ADDRESS,
+      user: address ?? ZERO_ADDRESS,
     })) ?? []
   );
 
-  return {
-    rewards:
-      rewards
-        ?.map((amount, i) => ({
-          token: WHITELISTED_REWARDS[i],
-          rewardAmount: amount,
-        }))
-        .filter((r) => r.rewardAmount > 0) ?? [],
-  } as const;
+  return useMemo(() => {
+    return {
+      rewards:
+        rewards
+          ?.map((amount, i) => ({
+            token: WHITELISTED_REWARDS[i],
+            rewardAmount: amount,
+          }))
+          .filter((r) => r.rewardAmount > 0) ?? [],
+    } as const;
+  }, [rewards]);
 };

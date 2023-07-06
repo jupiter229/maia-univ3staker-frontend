@@ -313,7 +313,7 @@ export const useUserTokenRewards = (
       : (data as Data).map((rewards, i) => {
           return rewards.result === undefined || rewards.result === null
             ? 0
-            : Number(rewards.result[0]);
+            : Number(rewards.result);
         });
   }, [args, data, isError, isLoading]);
 

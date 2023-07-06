@@ -1,4 +1,5 @@
 import Footer from "@/components/Footer/Footer";
+import RewardsWarning from "@/components/RewardsWarning/RewardsWarning";
 import { wagmiClient } from "@/config";
 import { useUniswapClient } from "@/hooks/web3";
 import "@/styles/globals.css";
@@ -18,6 +19,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <ApolloProvider client={client}>
       <Header />
+      <RewardsWarning />
       <main className="flex flex-col items-center px-12 py-8 gap-6">
         {children}
       </main>
