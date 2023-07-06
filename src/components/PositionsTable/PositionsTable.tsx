@@ -16,9 +16,7 @@ import { Table } from "../Table";
 import { ActionButtons } from "./ActionButtons";
 
 interface IProps {
-  incentiveId?: string;
   data?: any[];
-  hasExpired?: boolean;
   title?: string;
   incentive?: IIncentive;
 }
@@ -37,7 +35,6 @@ const staticColumns = [
 
 export const PositionsTable: React.FC<IProps> = ({
   data,
-  incentiveId,
   incentive = null,
   title = "My Positions",
 }) => {
@@ -45,14 +42,11 @@ export const PositionsTable: React.FC<IProps> = ({
   const columns = useMemo(
     () => [
       ...staticColumns,
-      // {
-      //   Header: "Position Value",
-      //   accessor: "value",
-      //   Cell: ({ row: { original: row } }) =>
-      //     formatUSD(
-      //       (row.liquidity / row.pool.liquidity) * row.pool.totalValueLockedUSD
-      //     ),
-      // },
+      {
+        Header: "Position Value",
+        accessor: "value",
+        Cell: ({ row: { original: row } }) => formatUSD(row.valueUSD),
+      },
       {
         Header: "Position Range",
         accessor: "range",
@@ -78,26 +72,55 @@ export const PositionsTable: React.FC<IProps> = ({
         Header: "Pending Rewards",
         accessor: "rewards",
         Cell: ({ row: { original: row } }) =>
-          !!row.incentiveRewards ? (
+          !!row.incentive && (
             <>
               <p>
-                {formatBigInt(
-                  row.incentiveRewards,
-                  row.incentive.rewardToken.decimals
-                )}{" "}
-                {row.incentive.rewardToken.symbol}
+                {(!!row.incentiveRewards
+                  ? formatBigInt(
+                      row.incentiveRewards,
+                      row.incentive.rewardToken.decimals
+                    )
+                  : 0) +
+                  " " +
+                  row.incentive.rewardToken.symbol}
               </p>
               <p>
-                {formatUSD(
-                  formatBigInt(
-                    row.incentiveRewards,
-                    row.incentive.rewardToken.decimals
-                  ) * row.incentive.tokenPriceUSD
+                {!!row.incentiveRewards && row.incentive.tokenPriceUSD >= 0 ? (
+                  formatUSD(
+                    formatBigInt(
+                      row.incentiveRewards,
+                      row.incentive.rewardToken.decimals
+                    ) * row.incentive.tokenPriceUSD
+                  )
+                ) : (
+                  <></>
                 )}
               </p>
             </>
-          ) : (
-            0
+          ),
+      },
+      {
+        Header: "Stake APR",
+        accessor: "apr",
+        Cell: ({ row: { original: row } }) =>
+          !!row.incentive &&
+          !!row.incentiveRewards &&
+          row.incentive.tokenPriceUSD >= 0 && (
+            <>
+              {(
+                (((row.incentiveRewards /
+                  10 ** row.incentive.rewardToken.decimals) *
+                  row.incentive.tokenPriceUSD) /
+                  row.valueUSD) *
+                (YEAR /
+                  (new Date().getTime() / 1000 -
+                    row.stakedIncentives.find(
+                      (i) => i.incentive.id === row.incentive.id
+                    ).stakeTime)) *
+                100
+              ).toFixed(2)}
+              %
+            </>
           ),
       },
       {
@@ -120,11 +143,11 @@ export const PositionsTable: React.FC<IProps> = ({
           incentive.minWidth > row.tickUpper.tickIdx - row.tickLower.tickIdx ? (
             "Position range to low to stake"
           ) : (
-            <ActionButtons incentiveId={incentiveId} position={row} />
+            <ActionButtons incentive={row.incentive ?? null} position={row} />
           ),
       },
     ],
-    [incentive, incentiveId]
+    [incentive]
   );
 
   return (
@@ -133,16 +156,16 @@ export const PositionsTable: React.FC<IProps> = ({
         <>
           <h5 className="text-lg font-semibold px-6 w-full grid grid-cols-5">
             {title}
-            {incentive !== null && data !== undefined && data.length > 0 && (
+            {incentive !== null && (
               <Link
                 target="_blank"
                 href={
                   "https://uni.maiadao.io/#/add/" +
-                  data[0].pool.token0.id +
+                  incentive.pool.token0.id +
                   "/" +
-                  data[0].pool.token1.id +
+                  incentive.pool.token1.id +
                   "/" +
-                  data[0].pool.feeTier
+                  incentive.pool.feeTier
                 }
                 className="col-start-5"
               >
@@ -150,7 +173,7 @@ export const PositionsTable: React.FC<IProps> = ({
               </Link>
             )}
           </h5>
-          {incentive !== null && data !== undefined && data.length > 0 && (
+          {incentive !== null && (
             <div className="bg-dark-hard rounded-xl p-4 text-white w-full divide-y divide-blue-200">
               <div className="text-md font-semibold px-6 w-full grid grid-cols-5 mb-1">
                 <p>Pool</p>
@@ -161,43 +184,43 @@ export const PositionsTable: React.FC<IProps> = ({
               </div>
               <h5 className="text-md px-6 w-full grid grid-cols-5 pt-2">
                 <p>
-                  {data[0].pool.token0.symbol}/
-                  {data[0].pool.token1.symbol +
+                  {incentive.pool.token0.symbol}/
+                  {incentive.pool.token1.symbol +
                     " " +
-                    data[0].pool.feeTier / 10000}
+                    incentive.pool.feeTier / 10000}
                   % Fee
                 </p>
                 <div>
-                  <p>{formatDateTime(incentive?.startTime * 1000)}</p>
-                  <p>{formatDateTime(incentive?.endTime * 1000)}</p>
+                  <p>{formatDateTime(incentive.startTime * 1000)}</p>
+                  <p>{formatDateTime(incentive.endTime * 1000)}</p>
                 </div>
-                <p>{formatUSD(data[0].pool.totalValueLockedUSD)}</p>
+                <p>{formatUSD(incentive.pool.totalValueLockedUSD)}</p>
                 <div>
-                  <p>±{incentive?.minWidth * TICK_WIDTH}%</p>
+                  <p>±{incentive.minWidth * TICK_WIDTH}%</p>
                   <p>
-                    {incentive?.minWidth}{" "}
-                    {incentive?.minWidth == 1 ? "Tick" : "Ticks"}
+                    {incentive.minWidth}{" "}
+                    {incentive.minWidth == 1 ? "Tick" : "Ticks"}
                   </p>
                 </div>
                 <p>
-                  {(incentive?.tokenPriceUSD > 0 &&
-                    incentive?.fullRangeLiquidityUSD > 0 &&
+                  {(incentive.tokenPriceUSD > 0 &&
+                    incentive.fullRangeLiquidityUSD > 0 &&
                     (
-                      ((formatBigInt(incentive?.reward) *
-                        incentive?.tokenPriceUSD) /
-                        incentive?.fullRangeLiquidityUSD) *
-                      (YEAR / (incentive?.endTime - incentive?.startTime)) *
+                      ((formatBigInt(incentive.reward) *
+                        incentive.tokenPriceUSD) /
+                        incentive.fullRangeLiquidityUSD) *
+                      (YEAR / (incentive.endTime - incentive.startTime)) *
                       100
                     ).toFixed(2)) ||
                     0}
                   % -{" "}
-                  {(incentive?.tokenPriceUSD > 0 &&
-                    incentive?.activeLiqudityUSD > 0 &&
+                  {(incentive.tokenPriceUSD > 0 &&
+                    incentive.activeLiqudityUSD > 0 &&
                     (
-                      ((formatBigInt(incentive?.reward) *
-                        incentive?.tokenPriceUSD) /
-                        incentive?.activeLiqudityUSD) *
-                      (YEAR / (incentive?.endTime - incentive?.startTime)) *
+                      ((formatBigInt(incentive.reward) *
+                        incentive.tokenPriceUSD) /
+                        incentive.activeLiqudityUSD) *
+                      (YEAR / (incentive.endTime - incentive.startTime)) *
                       100
                     ).toFixed(2)) ||
                     0}

@@ -1,10 +1,9 @@
 import { Contracts, PositionManagerABI, UniswapV3StakerABI } from "@/config";
-import { Arrayable, Incentiveish } from "@/types";
+import { Arrayable, IIncentive, Incentiveish } from "@/types";
 import { arrayify, encodeIncentive, getIncentiveStruct } from "@/utils";
 import { useCallback, useMemo } from "react";
 import { encodeFunctionData, getAddress } from "viem";
 import { useContractReads, useContractWrite } from "wagmi";
-import { useIncentive } from "./incentives";
 import { useWeb3 } from "./web3";
 
 const stakerContract = {
@@ -36,14 +35,6 @@ export const useStakerContractWriteWithdraw = (chainId: number) => {
   });
 };
 
-// export const useStakerContractWriteClaimReward = (chainId: number) => {
-//   return useContractWrite({
-//   ...stakerContract,
-//     chainId: chainId,
-//     functionName: "claimReward",
-//   });
-// };
-
 const usePositionManagerContractWriteSafeTransferFrom = (chainId: number) => {
   return useContractWrite({
     address: getAddress(Contracts.positionManager[1088]),
@@ -53,30 +44,46 @@ const usePositionManagerContractWriteSafeTransferFrom = (chainId: number) => {
   });
 };
 
-const getCallsGetRewardInfo = (args: { incentive: any; tokenId: number }[]) => {
-  return args.map((arg) => {
-    return {
-      ...stakerContract,
-      functionName: "getRewardInfo",
-      args: [arg.incentive, arg.tokenId],
-    };
-  });
+const getCallsGetRewardInfo = (
+  args: { incentive: any; tokenId: number }[]
+): any => {
+  return args.map((arg) => ({
+    ...stakerContract,
+    functionName: "getRewardInfo",
+    args: [arg.incentive, arg.tokenId],
+  }));
 };
 
 const useContractReadsGetRewardInfo = (
   args: { incentive: any; tokenId: number }[]
 ) => {
   return useContractReads({
-    contracts: getCallsGetRewardInfo(args) as any,
-    watch: true as any,
+    contracts: getCallsGetRewardInfo(args),
   });
 };
 
-export const useDepositStake = (incentiveId: string) => {
+const getCallsUserTokenRewards = (
+  args: { rewardToken: string; user: string }[]
+): any => {
+  return args.map((arg) => ({
+    ...stakerContract,
+    functionName: "rewards",
+    args: [arg.rewardToken, arg.user],
+  }));
+};
+
+const useContractReadsUserTokenRewards = (
+  args: { rewardToken: string; user: string }[]
+) => {
+  return useContractReads({
+    contracts: getCallsUserTokenRewards(args),
+  });
+};
+
+export const useDepositStake = (incentive: IIncentive | undefined) => {
   const { account, chainId } = useWeb3();
   const { data, isLoading, isSuccess, write } =
     usePositionManagerContractWriteSafeTransferFrom(chainId);
-  const [incentive] = useIncentive(incentiveId);
 
   const stake = useCallback(
     async (nftId: string | number) => {
@@ -100,11 +107,10 @@ export const useDepositStake = (incentiveId: string) => {
   return stake;
 };
 
-export const useStake = (incentiveId: string) => {
+export const useStake = (incentive: IIncentive | undefined) => {
   const { account, chainId } = useWeb3();
   const { data, isLoading, isSuccess, write } =
     useStakerContractWriteStake(chainId);
-  const [incentive] = useIncentive(incentiveId);
 
   const stake = useCallback(
     async (nftId: string | number) => {
@@ -123,25 +129,52 @@ export const useStake = (incentiveId: string) => {
   return stake;
 };
 
-export const useWithdraw = (incentiveId: string) => {
+export const useWithdraw = () => {
   const { account, chainId } = useWeb3();
   const { data, isLoading, isSuccess, write } =
     useStakerContractWriteWithdraw(chainId);
-  const [incentive] = useIncentive(incentiveId);
 
   const withdraw = useCallback(
     async (nftId: string | number) => {
-      if (!incentive) throw "No incentive";
       if (!write) throw "No staker";
       if (!account) throw "No account";
 
-      write({ args: [nftId.toString(), account, encodeIncentive(incentive)] });
+      write({ args: [nftId.toString(), account, ""] });
       return isSuccess ? data : isLoading;
     },
-    [account, data, incentive, isLoading, isSuccess, write]
+    [account, data, isLoading, isSuccess, write]
   );
 
   return withdraw;
+};
+
+export const useClaimAccruedRewards = () => {
+  const { account, chainId } = useWeb3();
+  const { data, isLoading, isSuccess, write } =
+    useStakerContractWriteMulticall(chainId);
+
+  const claim = useCallback(
+    async (tokens: string[]) => {
+      const calls = tokens
+        .map((token) => {
+          return [
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "claimReward",
+              args: [token, account, 0],
+            }),
+          ];
+        })
+        .flat();
+
+      write({ args: [calls] });
+
+      return isSuccess ? data : isLoading;
+    },
+    [account, data, isLoading, isSuccess, write]
+  );
+
+  return claim;
 };
 
 export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
@@ -159,7 +192,7 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
       const calls = arrayify(incentives)
         .map((incentive) => {
           const incentiveStruct = getIncentiveStruct(incentive);
-          const rewardToken = incentiveStruct.rewardToken;
+          const rewardToken = incentiveStruct?.rewardToken;
           return [
             encodeFunctionData({
               abi: UniswapV3StakerABI,
@@ -185,30 +218,51 @@ export const useUnstake = (incentives: Arrayable<Incentiveish>) => {
   return unstake;
 };
 
-// export const useIncentiveRewards = (incentiveId: string) => {
-//   const { account, chainId } = useWeb3();
-//   const { data, isLoading, isSuccess, write } =
-//     useStakerContractWriteClaimReward(chainId);
-//   const [incentive] = useIncentive(incentiveId);
-//   const [rewards, setRewards] = useState<BigNumber>(BigNumber.from(0));
+export const useClaimRewards = (incentives: Arrayable<Incentiveish>) => {
+  const { account, chainId } = useWeb3();
+  const { data, isLoading, isSuccess, write } =
+    useStakerContractWriteMulticall(chainId);
 
-//   const claimRewards = useCallback(async () => {
-//     if (!incentive) throw "No incentive";
-//     if (!write) throw "No staker";
-//     if (!account) throw "No account";
+  const restakeAndClaim = useCallback(
+    async (nftId: string | number) => {
+      if (!incentives || (Array.isArray(incentives) && !incentives))
+        throw "No incentive";
+      if (!write) throw "No staker";
+      if (!account) throw "No account";
 
-//     write({ args: [incentive.rewardToken.id, account, 0] });
+      const calls = arrayify(incentives)
+        .map((incentive) => {
+          const incentiveStruct = getIncentiveStruct(incentive);
+          const rewardToken = incentiveStruct?.rewardToken;
+          return [
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "unstakeToken",
+              args: [incentiveStruct, nftId.toString()],
+            }),
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "stakeToken",
+              args: [incentiveStruct, nftId.toString()],
+            }),
+            encodeFunctionData({
+              abi: UniswapV3StakerABI,
+              functionName: "claimReward",
+              args: [rewardToken, account, 0],
+            }),
+          ];
+        })
+        .flat();
 
-//     return isSuccess ? data : isLoading;
-//   }, [account, data, incentive, isLoading, isSuccess, write]);
+      write({ args: [calls] });
 
-//   useEffect(() => {
-//     if (!incentive || !staker || !account) return;
-//     staker.rewards(incentive.rewardToken.id, account).then(setRewards);
-//   }, [account, incentive, staker]);
+      return isSuccess ? data : isLoading;
+    },
+    [account, data, incentives, isLoading, isSuccess, write]
+  );
 
-//   return { ...incentive?.rewardToken, rewards, claimRewards };
-// };
+  return restakeAndClaim;
+};
 
 type Reward = {
   result: number[] | null;
@@ -235,6 +289,31 @@ export const useIncentiveRewards = (
           return rewards.result === undefined || rewards.result === null
             ? 0
             : Number(rewards.result[0]);
+        });
+  }, [args, data, isError, isLoading]);
+
+  return result;
+};
+
+export const useUserTokenRewards = (
+  args: { rewardToken: string; user: string }[]
+) => {
+  const { data, isError, isLoading } = useContractReadsUserTokenRewards(
+    args.map((arg) => ({
+      rewardToken: arg.rewardToken,
+      user: arg.user,
+    }))
+  );
+
+  const result = useMemo(() => {
+    if (!args || isError || !data) return;
+
+    return isLoading
+      ? []
+      : (data as Data).map((rewards, i) => {
+          return rewards.result === undefined || rewards.result === null
+            ? 0
+            : Number(rewards.result);
         });
   }, [args, data, isError, isLoading]);
 
